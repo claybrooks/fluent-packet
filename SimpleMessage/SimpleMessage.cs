@@ -72,13 +72,47 @@ namespace SimpleMessage
             DataFactory.Register<CompositeInfo, CompositeInfoType>();
         }
 
-        public int DeviceId => GetData<int>((long)Tags.DeviceId);
-        public bool DeviceEnabled => GetData<bool>((long)Tags.DeviceEnabled);
-        public int DeviceState => GetData<int>((long)Tags.DeviceState);
-        public string DeviceName => GetData<string>((long)Tags.DeviceName);
-        public SiteInfo SiteInfo => GetData<SiteInfo>((long)Tags.SiteInfo);
-        public VendorInfo VendorInfo => GetData<VendorInfo>((long)Tags.VendorInfo);
-        public CompositeInfo CompositeInfo => GetData<CompositeInfo>((long)Tags.CompositeInfo);
+        public int DeviceId
+        {
+            get => GetData<int>((long) Tags.DeviceId);
+            set => SetData((long) Tags.DeviceId, value);
+        }
+
+        public bool DeviceEnabled
+        {
+            get => GetData<bool>((long)Tags.DeviceEnabled);
+            set => SetData((long)Tags.DeviceEnabled, value);
+        }
+
+        public int DeviceState
+        {
+            get => GetData<int>((long)Tags.DeviceState);
+            set => SetData((long)Tags.DeviceState, value);
+        }
+
+        public string DeviceName
+        {
+            get => GetData<string>((long)Tags.DeviceName);
+            set => SetData((long)Tags.DeviceName, value);
+        }
+
+        public SiteInfo SiteInfo
+        {
+            get => GetData<SiteInfo>((long)Tags.SiteInfo);
+            set => SetData((long)Tags.SiteInfo, value);
+        }
+
+        public VendorInfo VendorInfo
+        {
+            get => GetData<VendorInfo>((long)Tags.VendorInfo);
+            set => SetData((long)Tags.VendorInfo, value);
+        }
+
+        public CompositeInfo CompositeInfo
+        {
+            get => GetData<CompositeInfo>((long)Tags.CompositeInfo);
+            set => SetData((long)Tags.CompositeInfo, value);
+        }
 
         public SimpleMessage WithDeviceId(int id)
         {
