@@ -1,9 +1,13 @@
 ﻿
+using Messaging.Abstractions;
+
 namespace Messaging.Interfaces
 {
     public interface ISerializer
     {
         int Length();
+
+        void SetFactory(SerializerFactory factory);
     }
 
     public interface ISerializer<T> : ISerializer

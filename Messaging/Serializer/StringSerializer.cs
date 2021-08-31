@@ -1,23 +1,12 @@
 ﻿using System.Text;
 
 using Messaging.Abstractions;
-using Messaging.Interfaces;
 
 namespace Messaging.Serializer
 {
     public class StringSerializer : Serializer<string>
     {
-        public int FixedLength;
-
-        public StringSerializer(ISerializerFactory factory) : this(factory, 20)
-        {
-
-        }
-
-        public StringSerializer(ISerializerFactory factory, int length) : base(factory)
-        {
-            FixedLength = length;
-        }
+        public int FixedLength { get; set; }
 
         public override bool Deserialize(ref string value, byte[] data, int offset)
         {

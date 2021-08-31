@@ -15,9 +15,13 @@ namespace SimpleMessage.Components
 
     public class CompositeInfoSerializer : Serializer<CompositeInfo>
     {
-        public CompositeInfoSerializer(ISerializerFactory factory) : base(factory)
-        {
+        private readonly Lazy<ISerializer<SiteInfo>> _siteInfoSerializer;
+        private readonly Lazy<ISerializer<VendorInfo>> _vendorInfoSerializer;
 
+        public CompositeInfoSerializer()
+        {
+            _siteInfoSerializer = new Lazy<ISerializer<SiteInfo>>(() => _factory.Get<SiteInfo>());
+            _vendorInfoSerializer = new Lazy<ISerializer<VendorInfo>>(() => _factory.Get<VendorInfo>());
         }
 
         public override bool Deserialize(ref CompositeInfo value, byte[] data, int offset)
@@ -28,38 +32,29 @@ namespace SimpleMessage.Components
             }
 
             value.CompositeId = BitConverter.ToInt32(data, offset);
-            Factory.Get<SiteInfo>().Deserialize(ref value.SiteInfo, data, offset + 4);
-            Factory.Get<VendorInfo>().Deserialize(ref value.VendorInfo, data, offset + 4 + Factory.Get<SiteInfo>().Length());
+            _siteInfoSerializer.Value.Deserialize(ref value.SiteInfo, data, offset + 4);
+            _vendorInfoSerializer.Value.Deserialize(ref value.VendorInfo, data, offset + 4 + _siteInfoSerializer.Value.Length());
 
             return true;
         }
 
         public override byte[] Serialize(CompositeInfo value)
         {
-            var vendorInfoSerializer = Factory.Get<VendorInfo>();
-            var siteInfoSerializer = Factory.Get<SiteInfo>();
+            var data = new byte[Length()];
 
-            byte[] data = new byte[Length()];
-
-            byte[] vendorBytes = vendorInfoSerializer.Serialize(value.VendorInfo);
-            byte[] siteBytes = siteInfoSerializer.Serialize(value.SiteInfo);
+            var vendorBytes = _vendorInfoSerializer.Value.Serialize(value.VendorInfo);
+            var siteBytes = _siteInfoSerializer.Value.Serialize(value.SiteInfo);
 
             BitConverter.GetBytes(value.CompositeId).CopyTo(data, 0);
             siteBytes.CopyTo(data, 4);
-            vendorBytes.CopyTo(data, 4 + siteInfoSerializer.Length());
+            vendorBytes.CopyTo(data, 4 + _siteInfoSerializer.Value.Length());
 
             return data;
         }
 
         public override int Length()
         {
-            return 4 + Factory.Get<SiteInfo>().Length() + Factory.Get<VendorInfo>().Length();
+            return 4 + _siteInfoSerializer.Value.Length() + _vendorInfoSerializer.Value.Length();
         }
-    }
-
-    public class CompositeInfoType : ReferenceType<CompositeInfo, CompositeInfoSerializer>
-    {
-        public CompositeInfoType(ISerializerFactory factory) : this(factory, new CompositeInfo()) { }
-        public CompositeInfoType(ISerializerFactory factory, CompositeInfo info) : base(factory, info ?? new CompositeInfo()) { }
     }
 }

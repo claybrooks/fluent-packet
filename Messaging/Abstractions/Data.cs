@@ -2,33 +2,31 @@
 
 namespace Messaging.Abstractions
 {
-    public abstract class Data<T> : IData<T>
+    public abstract class Data
     {
-        protected T _value;
-
-        public T Value { get => _value; set => _value = value; }
-
         public abstract int Length();
 
-        public abstract bool Deserialize(byte[] data, int offset);
-
-
         public abstract int Serialize(byte[] data, int offset);
+
+        public abstract bool Deserialize(byte[] data, int offset);
     }
 
-    public abstract class Data<T, TS> : Data<T> where TS : ISerializer<T>
+    public class Data<T> : Data
     {
-        protected TS Serializer;
+        protected ISerializer<T> Serializer { get; private set; } = null!;
 
-        protected Data(ISerializerFactory factory)
+        private T _value;
+
+        public T Value { get => _value; set => _value =value; }
+        
+        public Data(T value)
         {
-            factory.Register<T, TS>();
-            Serializer = (TS)factory.Get<T>();
+            _value = value;
         }
 
-        protected Data(ISerializerFactory factory, T value) : this(factory)
+        public void SetSerializer(ISerializer<T> serializer)
         {
-            Value = value;
+            Serializer = serializer;
         }
 
         public override int Length()
@@ -36,14 +34,15 @@ namespace Messaging.Abstractions
             return Serializer.Length();
         }
 
-        public override bool Deserialize(byte[] data, int offset)
-        {
-            return Serializer.Deserialize(ref _value, data, offset);
-        }
-
         public override int Serialize(byte[] data, int offset)
         {
             return Serializer.Serialize(_value, data, offset);
+        }
+
+        public override bool Deserialize(byte[] data, int offset)
+        {
+            // TODO Maybe no ref
+            return Serializer.Deserialize(ref _value, data, offset);
         }
     }
 }

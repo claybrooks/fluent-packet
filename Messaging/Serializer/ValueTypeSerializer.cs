@@ -1,17 +1,11 @@
 ﻿using System.Runtime.InteropServices;
 
 using Messaging.Abstractions;
-using Messaging.Interfaces;
 
 namespace Messaging.Serializer
 {
     public class ValueTypeSerializer<T> : Serializer<T> where T : struct
     {
-        public ValueTypeSerializer(ISerializerFactory factory) : base(factory)
-        {
-
-        }
-
         public override bool Deserialize(ref T value, byte[] data, int offset)
         {
             var length = Marshal.SizeOf(value);

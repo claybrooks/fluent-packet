@@ -4,18 +4,18 @@ namespace Messaging.Abstractions
 {
     public abstract class Serializer<T> : ISerializer<T>
     {
-        protected ISerializerFactory Factory;
-
-        protected Serializer(ISerializerFactory factory)
-        {
-            Factory = factory;
-        }
-
+        protected SerializerFactory _factory = null!;
+        
         public int Serialize(T value, byte[] data, int offset)
         {
             var b = Serialize(value);
             b.CopyTo(data, offset);
             return b.Length;
+        }
+
+        public void SetFactory(SerializerFactory factory)
+        {
+            _factory = factory;
         }
 
         public abstract bool Deserialize(ref T value, byte[] data, int offset);

@@ -1,54 +1,39 @@
 ﻿
 using SimpleMessage.Components;
 using Messaging.Abstractions;
+using Messaging.Data;
+using Messaging.Serializer;
 
 namespace SimpleMessage
 {
-    public class Builder : Builder<SimpleMessage>
+    public class SimpleMessageBuilder : Builder<SimpleMessage>
     {
+        public static SimpleMessage ConstructFromConfig(string file, char delimiter = '|')
+        {
+            return new Builder<SimpleMessage>()
+                .FromConfig(new JsonConfigReader(), file);
+        }
+
         public static SimpleMessage Construct(char delimiter = '|')
         {
             return new Builder<SimpleMessage>()
                 .WithData<byte>(0x02)
                 .WithData(delimiter)
-                .WithData<int>((long)SimpleMessage.Tags.DeviceId)
+                .WithData(0, (long)SimpleMessage.Tags.DeviceId)
                 .WithData(delimiter)
-                .WithData<bool>((long)SimpleMessage.Tags.DeviceEnabled)
+                .WithData(false, (long)SimpleMessage.Tags.DeviceEnabled)
                 .WithData(delimiter)
-                .WithData<int>((long)SimpleMessage.Tags.DeviceState)
+                .WithData(0, (long)SimpleMessage.Tags.DeviceState)
                 .WithData(delimiter)
-                .WithData<string>((long)SimpleMessage.Tags.DeviceName)
+                .WithData("", (long)SimpleMessage.Tags.DeviceName)
                 .WithData(delimiter)
-                .WithData<SiteInfo>((long)SimpleMessage.Tags.SiteInfo)
+                .WithData(new SiteInfo(), (long)SimpleMessage.Tags.SiteInfo)
                 .WithData(delimiter)
-                .WithData<VendorInfo>((long)SimpleMessage.Tags.VendorInfo)
+                .WithData(new VendorInfo(), (long)SimpleMessage.Tags.VendorInfo)
                 .WithData(delimiter)
-                .WithData<CompositeInfo>((long)SimpleMessage.Tags.CompositeInfo)
+                .WithData(new CompositeInfo(), (long)SimpleMessage.Tags.CompositeInfo)
                 .WithData(delimiter)
                 .WithData<byte>(0x03)
-                .Build();
-        }
-        public static SimpleMessage ConstructHumanReadable(char delimiter = '|')
-        {
-            return new Builder<SimpleMessage>()
-                .WithData("<STX>")
-                .WithData(delimiter)
-                .WithData("<DEVICE_ID>")
-                .WithData(delimiter)
-                .WithData("<DEVICE_ENABLED>")
-                .WithData(delimiter)
-                .WithData("<DEVICE_STATE>")
-                .WithData(delimiter)
-                .WithData("<DEVICE_NAME>")
-                .WithData(delimiter)
-                .WithData("<SITE_INFO>")
-                .WithData(delimiter)
-                .WithData("<VENDOR_INFO>")
-                .WithData(delimiter)
-                .WithData("<COMPOSITE_INFO>")
-                .WithData(delimiter)
-                .WithData("<ETX>")
-                .WithData(delimiter)
                 .Build();
         }
     }
@@ -68,8 +53,20 @@ namespace SimpleMessage
 
         public SimpleMessage()
         {
-            DataFactory.Register<VendorInfo, VendorInfoType>();
-            DataFactory.Register<CompositeInfo, CompositeInfoType>();
+            // Set up DI
+            SerializerFactory.Register<string, StringSerializer>(serializer =>
+            {
+                if (serializer is StringSerializer s) s.FixedLength = 10;
+            });
+            SerializerFactory.Register<VendorInfo, VendorInfoSerializer>();
+            SerializerFactory.Register<CompositeInfo, CompositeInfoSerializer>();
+
+            DataFactory.Register<VendorInfo, ReferenceType<VendorInfo>>();
+            DataFactory.Register<CompositeInfo, ReferenceType<CompositeInfo>>();
+
+            TypeFactory.Register<VendorInfo>("VendorInfo");
+            TypeFactory.Register<CompositeInfo>("CompositeInfo");
+            TypeFactory.Register<SiteInfo>("SiteInfo");
         }
 
         public int DeviceId
@@ -116,43 +113,43 @@ namespace SimpleMessage
 
         public SimpleMessage WithDeviceId(int id)
         {
-            SetData((long)Tags.DeviceId, id);
+            DeviceId = id;
             return this;
         }
 
         public SimpleMessage WithDeviceEnabled(bool enabled)
         {
-            SetData((long)Tags.DeviceEnabled, enabled);
+            DeviceEnabled = enabled;
             return this;
         }
 
         public SimpleMessage WithDeviceState(int state)
         {
-            SetData((long)Tags.DeviceState, state);
+            DeviceState = state;
             return this;
         }
 
         public SimpleMessage WithDeviceName(string name)
         {
-            SetData((long)Tags.DeviceName, name);
+            DeviceName = name;
             return this;
         }
 
         public SimpleMessage WithSiteInfo(SiteInfo info)
         {
-            SetData((long)Tags.SiteInfo, info);
+            SiteInfo = info;
             return this;
         }
 
         public SimpleMessage WithVendorInfo(VendorInfo info)
         {
-            SetData((long)Tags.VendorInfo, info);
+            VendorInfo = info;
             return this;
         }
 
         public SimpleMessage WithCompositeInfo(CompositeInfo info)
         {
-            SetData((long)Tags.CompositeInfo, info);
+            CompositeInfo = info;
             return this;
         }
     }

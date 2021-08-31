@@ -2,29 +2,31 @@
 using System.Collections.Generic;
 using System.Linq;
 
-using Messaging.Interfaces;
-using String = Messaging.Data.String;
-
 namespace Messaging.Abstractions
 {
-    public class Packet : IPacket
+    public class Packet
     {
-        readonly ICollection<IData> _data;
-        readonly IDictionary<long, IData> _taggedData;
+        readonly ICollection<Data> _data;
+        readonly IDictionary<long, Data> _taggedData;
 
-        public IDataFactory DataFactory { get; }
+        public DataFactory DataFactory { get; }
 
-        public ISerializerFactory SerializerFactory { get; }
+        public SerializerFactory SerializerFactory { get; }
+
+        public TypeFactory TypeFactory { get; }
+
 
         public Packet()
         {
-            _data = new List<IData>();
-            _taggedData = new Dictionary<long, IData>();
+            _data = new List<Data>();
+            _taggedData = new Dictionary<long, Data>();
 
+            // TODO Allow these to be injected or rethink their use
             SerializerFactory = new SerializerFactory();
-
             DataFactory = new DataFactory(SerializerFactory);
-            DataFactory.Register<string, String>();
+            TypeFactory = new TypeFactory();
+
+            DataFactory.Register<string, Messaging.Data.String>();
         }
 
         public bool AddData<T>(T value)
@@ -50,7 +52,7 @@ namespace Messaging.Abstractions
                 throw new ArgumentException($"Unknown tag {tag}");
             }
 
-            if (data is not IData<T> typedData)
+            if (data is not Data<T> typedData)
             {
                 throw new Exception($"Provided generic type is invalid for the type registered against tag {tag}");
             }
@@ -67,9 +69,7 @@ namespace Messaging.Abstractions
                 return false;
             }
 
-            var typedData = (data as IData<T>);
-
-            if (typedData == null)
+            if (data is not Data<T> typedData)
             {
                 throw new Exception($"Provided generic type is invalid for the type registered against tag {tag}");
             }

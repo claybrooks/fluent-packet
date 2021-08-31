@@ -1,19 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using Messaging.Data;
-using Messaging.Interfaces;
 
 namespace Messaging.Abstractions
 {
 
-    public class DataFactory : IDataFactory
+    public class DataFactory
     {
         readonly IDictionary<Type, Type> _registeredType = new Dictionary<Type, Type>();
-        readonly ISerializerFactory _factory;
 
-        public DataFactory(ISerializerFactory factory)
+        readonly SerializerFactory _serializerFactory;
+
+        public DataFactory(SerializerFactory factory)
         {
-            _factory = factory;
+            _serializerFactory = factory;
         }
 
         public void Register<T>() where T : struct
@@ -21,7 +21,7 @@ namespace Messaging.Abstractions
             Register<T, ValueType<T>>();
         }
 
-        public void Register<TK, TV>() where TV : IData<TK>
+        public void Register<TK, TV>() where TV : Data<TK>
         {
             var keyType = typeof(TK);
             var valueType = typeof(TV);
@@ -34,17 +34,21 @@ namespace Messaging.Abstractions
             _registeredType.Add(keyType, valueType);
         }
 
-        public IData<T> Create<T>()
+        public Data<T> Create<T>()
         {
-            return CreateWithArgs<T>(_factory);
+            return CreateWithArgs<T>();
         }
 
-        public IData<T> Create<T>(T value)
+        public Data<T> Create<T>(T value)
         {
-            return CreateWithArgs<T>(_factory, value);
+            if (value == null)
+            {
+                throw new Exception("Can't create with null value");
+            }
+            return CreateWithArgs<T>(value);
         }
 
-        private IData<T> CreateWithArgs<T>(params object[] args)
+        private Data<T> CreateWithArgs<T>(params object[] args)
         {
             var typeKey = typeof(T);
 
@@ -53,32 +57,54 @@ namespace Messaging.Abstractions
                 GetValueTypeRegisterHelper<T>().Register(this);
             }
 
-            if (!_registeredType.TryGetValue(typeKey, out Type type))
+            if (!_registeredType.TryGetValue(typeKey, out var type))
             {
                 throw new Exception($"Type not registered with factory");
             }
 
+            var o = Activator.CreateInstance(type, args);
+            if (o == null)
+            {
+                throw new Exception($"Unable to create type");
+            }
 
-            return (IData<T>)Activator.CreateInstance(type, args);
+            if (o is not Data<T> d)
+            {
+                throw new Exception($"Registered type incompatible with requested type");
+            }
+
+            d.SetSerializer(_serializerFactory.Get<T>());
+
+            return d;
         }
 
         private static RegisterHelper GetValueTypeRegisterHelper<T>()
         {
             var helperType = typeof(ValueTypeRegisterHelper<>).MakeGenericType(typeof(T));
-            var ret = (RegisterHelper) Activator.CreateInstance(helperType);
 
-            return ret;
+            var o = Activator.CreateInstance(helperType);
+            if (o == null)
+            {
+                throw new Exception($"Unable to create helper");
+            }
+
+            if (o is not RegisterHelper r)
+            {
+                throw new Exception($"Unable to create helper");
+            }
+
+            return r;
         }
     }
 
     internal abstract class RegisterHelper
     {
-        public abstract void Register(IDataFactory factory);
+        public abstract void Register(DataFactory factory);
     }
 
     internal class ValueTypeRegisterHelper<T> : RegisterHelper where T : struct
     {
-        public override void Register(IDataFactory factory)
+        public override void Register(DataFactory factory)
         {
             factory.Register<T>();
         }

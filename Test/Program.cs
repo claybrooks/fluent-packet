@@ -1,16 +1,23 @@
-﻿using SimpleMessage;
+﻿using System;
+using Messaging.Abstractions;
+using SimpleMessage;
 using SimpleMessage.Components;
 
-using System;
-using System.Text;
-
-namespace Messaging
+namespace Test
 {
     internal class Program
     {
         private static void Main()
         {
-            var message = Builder.Construct('}')
+            TestCodeBuilder();
+            TestConfigBuilder();
+            
+            Console.ReadKey();
+        }
+
+        private static void TestCodeBuilder()
+        {
+            var packet = SimpleMessageBuilder.Construct('}')
                 .WithDeviceName("DEVICE_BBB")
                 .WithDeviceEnabled(true)
                 .WithDeviceId(6)
@@ -32,17 +39,40 @@ namespace Messaging
                     }
                 });
 
+            PrintPacket(packet);
+        }
 
-            message.Serialize(out var bytes);
+        private static void TestConfigBuilder()
+        {
+            var packet = SimpleMessageBuilder.ConstructFromConfig("Configs/SimpleMessage.json", ':')
+                .WithDeviceName("DEVICE_BBB")
+                .WithDeviceEnabled(true)
+                .WithDeviceId(6)
+                .WithDeviceState(2)
+                .WithVendorInfo(new VendorInfo() { Enabled = false, VendorId = 0xDEAD })
+                .WithSiteInfo(new SiteInfo() { SiteId = 0xBEEF, Enabled = true })
+                .WithCompositeInfo(new CompositeInfo()
+                {
+                    CompositeId = 0xDEAD,
+                    SiteInfo = new SiteInfo()
+                    {
+                        Enabled = true,
+                        SiteId = 0x01
+                    },
+                    VendorInfo = new VendorInfo()
+                    {
+                        Enabled = false,
+                        VendorId = 0x02
+                    }
+                });
 
-            var message2 = Builder.Construct();
+            PrintPacket(packet);
+        }
 
-            message2.Deserialize(bytes);
-
-
+        private static void PrintPacket(Packet packet)
+        {
+            packet.Serialize(out var bytes);
             Console.WriteLine($"[{string.Join(",", bytes)}]");
-            Console.WriteLine($"{Encoding.ASCII.GetString(bytes)}");
-            Console.ReadKey();
         }
     }
 }

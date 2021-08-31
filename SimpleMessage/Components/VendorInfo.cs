@@ -14,11 +14,6 @@ namespace SimpleMessage.Components
 
     public class VendorInfoSerializer : Serializer<VendorInfo>
     {
-        public VendorInfoSerializer(ISerializerFactory factory) : base(factory)
-        {
-
-        }
-
         public override bool Deserialize(ref VendorInfo value, byte[] data, int offset)
         {
             if (data[offset + 4] != (byte)',')
@@ -51,19 +46,6 @@ namespace SimpleMessage.Components
         public override int Length()
         {
             return 6;
-        }
-    }
-
-    public class VendorInfoType : ReferenceType<VendorInfo, VendorInfoSerializer>
-    {
-        public VendorInfoType(ISerializerFactory factory) : this(factory, new VendorInfo())
-        {
-
-        }
-
-        public VendorInfoType(ISerializerFactory factory, VendorInfo info) : base(factory, info ?? new VendorInfo())
-        { 
-
         }
     }
 }
