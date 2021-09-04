@@ -41,7 +41,6 @@ namespace Messaging.Abstractions
 
         public override bool Deserialize(byte[] data, int offset)
         {
-            // TODO Maybe no ref
             return Serializer.Deserialize(ref _value, data, offset);
         }
     }

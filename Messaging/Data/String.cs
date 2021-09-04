@@ -2,7 +2,10 @@
 {
     public class String : ReferenceType<string>
     {
-        public String() : base("")
+        public String() : this("")
+        {
+        }
+        public String(string value) : base(value)
         {
         }
     }

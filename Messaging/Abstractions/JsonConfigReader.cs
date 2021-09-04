@@ -9,9 +9,9 @@ namespace Messaging.Abstractions
     {
         public string TypeName { get; set; } = "";
                
-        public string Value { get; set; } = "";
+        public string? Value { get; set; } = null;
                
-        public string Tag { get; set; } = "";
+        public string? Tag { get; set; } = null;
     }
 
     public class JsonConfigReader : IConfigReader

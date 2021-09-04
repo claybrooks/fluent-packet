@@ -33,6 +33,8 @@ namespace SimpleMessage
                 .WithData(delimiter)
                 .WithData(new CompositeInfo(), (long)SimpleMessage.Tags.CompositeInfo)
                 .WithData(delimiter)
+                .WithData(new byte[] {1,2,3,4,5}, (long)SimpleMessage.Tags.StatusArray)
+                .WithData(delimiter)
                 .WithData<byte>(0x03)
                 .Build();
         }
@@ -49,24 +51,19 @@ namespace SimpleMessage
             SiteInfo,
             VendorInfo,
             CompositeInfo,
+            StatusArray
         }
 
         public SimpleMessage()
         {
-            // Set up DI
-            SerializerFactory.Register<string, StringSerializer>(serializer =>
+            Register<SiteInfo>();
+            Register<VendorInfo, ReferenceType<VendorInfo>, VendorInfoSerializer>();
+            Register<CompositeInfo, ReferenceType<CompositeInfo>, CompositeInfoSerializer>();
+            SerializerFactory.Register<string, StringSerializer>(s =>
             {
-                if (serializer is StringSerializer s) s.FixedLength = 10;
+                s.FixedLength = 10;
             });
-            SerializerFactory.Register<VendorInfo, VendorInfoSerializer>();
-            SerializerFactory.Register<CompositeInfo, CompositeInfoSerializer>();
-
-            DataFactory.Register<VendorInfo, ReferenceType<VendorInfo>>();
-            DataFactory.Register<CompositeInfo, ReferenceType<CompositeInfo>>();
-
-            TypeFactory.Register<VendorInfo>("VendorInfo");
-            TypeFactory.Register<CompositeInfo>("CompositeInfo");
-            TypeFactory.Register<SiteInfo>("SiteInfo");
+            SerializerFactory.Register<bool, BoolSerializer>();
         }
 
         public int DeviceId
@@ -111,6 +108,12 @@ namespace SimpleMessage
             set => SetData((long)Tags.CompositeInfo, value);
         }
 
+        public byte[] StatusArray
+        {
+            get => GetData<byte[]>((long) Tags.StatusArray);
+            set => SetData((long) Tags.StatusArray, value);
+        }
+
         public SimpleMessage WithDeviceId(int id)
         {
             DeviceId = id;
@@ -150,6 +153,12 @@ namespace SimpleMessage
         public SimpleMessage WithCompositeInfo(CompositeInfo info)
         {
             CompositeInfo = info;
+            return this;
+        }
+
+        public SimpleMessage WithStatusArray(byte[] array)
+        {
+            StatusArray = array;
             return this;
         }
     }

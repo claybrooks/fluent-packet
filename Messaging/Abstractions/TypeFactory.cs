@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Messaging.Interfaces;
 
 namespace Messaging.Abstractions
 {
@@ -8,7 +7,7 @@ namespace Messaging.Abstractions
     {
         private readonly IDictionary<string, Type> _types = new Dictionary<string, Type>();
 
-        public Type? Get(string name)
+        public Type Get(string name)
         {
             if (_types.TryGetValue(name, out var type))
             {
@@ -19,22 +18,11 @@ namespace Messaging.Abstractions
             var t = Type.GetType(name);
             if (t == null)
             {
-                return null;
+                throw new Exception("Unable to get type");
             }
 
             _types.Add(name, t);
             return t;
-        }
-
-        public void Register<T>()
-        {
-            var type = typeof(T);
-            if (type.FullName == null)
-            {
-                throw new Exception("Unable to discern type info");
-            }
-
-            Register<T>(type.FullName);
         }
 
         public void Register<T>(string name)

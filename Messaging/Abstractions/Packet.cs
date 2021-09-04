@@ -1,20 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Messaging.Interfaces;
+using Messaging.Serializer;
 
 namespace Messaging.Abstractions
 {
     public class Packet
     {
-        readonly ICollection<Data> _data;
-        readonly IDictionary<long, Data> _taggedData;
+        private readonly ICollection<Data> _data;
+        private readonly IDictionary<long, Data> _taggedData;
 
         public DataFactory DataFactory { get; }
 
         public SerializerFactory SerializerFactory { get; }
 
         public TypeFactory TypeFactory { get; }
-
 
         public Packet()
         {
@@ -27,6 +28,33 @@ namespace Messaging.Abstractions
             TypeFactory = new TypeFactory();
 
             DataFactory.Register<string, Messaging.Data.String>();
+        }
+        public void Register<T>(Action<ISerializer<T>>? initializer = null)
+            where T : struct
+        {
+            Register(typeof(T).Name, initializer);
+        }
+
+        public void Register<T>(string name, Action<ValueTypeSerializer<T>>? initializer = null)
+            where T : struct
+        {
+            Register<T, Data<T>, ValueTypeSerializer<T>>(name, initializer);
+        }
+
+        public void Register<T, TD, TS>(Action<TS>? initializer = null)
+            where TD : Data<T>
+            where TS : class, ISerializer<T>, new()
+        {
+            Register<T, TD, TS>(typeof(T).Name, initializer);
+        }
+
+        public void Register<T, TD, TS>(string name, Action<TS>? initializer = null)
+            where TD : Data<T>
+            where TS : class, ISerializer<T>, new()
+        {
+            TypeFactory.Register<T>(name);
+            DataFactory.Register<T, TD>();
+            SerializerFactory.Register<T, TS>(initializer);
         }
 
         public bool AddData<T>(T value)

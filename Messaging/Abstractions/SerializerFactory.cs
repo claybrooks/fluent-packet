@@ -9,14 +9,17 @@ namespace Messaging.Abstractions
     {
         private readonly IDictionary<Type, ISerializer> _createdTypes = new Dictionary<Type, ISerializer>();
 
-        public void Register<T, TS>(Action<ISerializer<T>> initializer) where TS : ISerializer<T>, new()
+        public void Register<T, TS>(Action<TS>? initializer) where TS : class, ISerializer, new()
         {
             Register<T, TS>();
-            
-            initializer.Invoke(Get<T>());
+            if (Get<T>() is not TS s)
+            {
+                throw new Exception("Unable to register type to serializer");
+            }
+            initializer?.Invoke(s);
         }
 
-        public void Register<T, TS>() where TS : ISerializer<T>, new()
+        public void Register<T, TS>() where TS : ISerializer, new()
         {
             var keyType = typeof(T);
             var valueType = typeof(TS);
@@ -38,10 +41,18 @@ namespace Messaging.Abstractions
         {
             var typeKey = typeof(T);
 
-            if (!_createdTypes.ContainsKey(typeKey) && typeKey.IsValueType)
+            if (!_createdTypes.ContainsKey(typeKey))
             {
-                var helper = GetValueTypeRegisterHelper<T>();
-                helper.Register(this);
+                if (typeKey.IsValueType)
+                {
+                    var helper = GetValueTypeRegisterHelper<T>();
+                    helper.Register(this);
+                }
+                else if (typeKey.IsArray)
+                {
+                    var helper = GetArrayValueTypeRegisterHelper<T>();
+                    helper.Register(this);
+                }
             }
 
             if (!_createdTypes.TryGetValue(typeKey, out var s))
@@ -76,6 +87,30 @@ namespace Messaging.Abstractions
             return r;
         }
 
+        private static RegisterHelper GetArrayValueTypeRegisterHelper<T>()
+        {
+            var elementType = typeof(T).GetElementType();
+            if (elementType == null)
+            {
+                throw new Exception($"Unable to create helper");
+            }
+
+            var helperType = typeof(ArrayValueTypeRegisterHelper<,>).MakeGenericType(typeof(T), elementType);
+
+            var o = Activator.CreateInstance(helperType);
+            if (o == null)
+            {
+                throw new Exception($"Unable to create helper");
+            }
+
+            if (o is not RegisterHelper r)
+            {
+                throw new Exception($"Unable to create helper");
+            }
+
+            return r;
+        }
+
         internal abstract class RegisterHelper
         {
             public abstract void Register(SerializerFactory factory);
@@ -86,6 +121,14 @@ namespace Messaging.Abstractions
             public override void Register(SerializerFactory factory)
             {
                 factory.Register<T, ValueTypeSerializer<T>>();
+            }
+        }
+
+        internal class ArrayValueTypeRegisterHelper<T, TE> : RegisterHelper where TE : struct
+        {
+            public override void Register(SerializerFactory factory)
+            {
+                factory.Register<T, ArrayValueTypeSerializer<TE>>();
             }
         }
     }

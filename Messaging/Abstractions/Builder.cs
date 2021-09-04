@@ -1,21 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using Messaging.Interfaces;
 
 namespace Messaging.Abstractions
 {
+    internal class MethodInfoHelper
+    {
+        public static MethodInfo GetMethodInfo<T>(Expression<Action<T>> expression)
+        {
+            if (expression.Body is MethodCallExpression member)
+                return member.Method;
+
+            throw new ArgumentException("Expression is not a method", "expression");
+        }
+    }
 
     public class Builder<TP>
         where TP : Packet, new()
     {
         private TP _packet;
-        
-        private readonly MethodInfo _voidWithData;
-        private readonly MethodInfo _paramWithData;
-        private readonly MethodInfo _tagWithData;
-        private readonly MethodInfo _paramTagWithData;
+        private readonly MethodInfo _withDataTValue;
+        private readonly MethodInfo _withDataTValueTag;
 
         public Builder()
         {
@@ -25,7 +33,7 @@ namespace Messaging.Abstractions
 
             foreach (MethodInfo mi in tbType.GetMethods())
             {
-                if (!mi.Name.Equals("WithData"))
+                if (!mi.Name.Equals("WithData") || !mi.IsGenericMethod)
                 {
                     continue;
                 }
@@ -34,29 +42,16 @@ namespace Messaging.Abstractions
 
                 switch (mp.Length)
                 {
-                    case 0:
-                        _voidWithData = mi;
-                        break;
                     case 2:
-                        _paramTagWithData = mi;
+                        _withDataTValueTag = mi;
                         break;
-                    default:
-                    {
-                        if (mp[0].ParameterType.IsGenericParameter)
-                        {
-                            _paramWithData = mi;
-                        }
-                        else
-                        {
-                            _tagWithData = mi;
-                        }
-
+                    case 1:
+                        _withDataTValue = mi;
                         break;
-                    }
                 }
             }
 
-            if (_voidWithData == null || _paramWithData == null || _tagWithData == null || _paramTagWithData == null)
+            if (_withDataTValue == null || _withDataTValueTag == null)
             {
                 throw new Exception(
                     "Unable to construct ConfigBuilder.  Could not find necessary 'WithData' functions");
@@ -72,9 +67,9 @@ namespace Messaging.Abstractions
         public TP FromConfig(IConfigReader reader, string filename)
         {
             // TODO Fix this
-            if (BuildFromFile(reader, filename))
+            if (!BuildFromFile(reader, filename))
             {
-                return Build();
+                throw new Exception("Unable to build from file");
             }
 
             return Build();
@@ -83,11 +78,6 @@ namespace Messaging.Abstractions
         public TP Build()
         {
             return _packet;
-        }
-
-        public Builder<TP> WithData<T>()
-        {
-            return WithData(default(T));
         }
 
         public Builder<TP> WithData<T>(T value)
@@ -117,53 +107,48 @@ namespace Messaging.Abstractions
 
         private bool WithData(IConfig config)
         {
-            if (!GetType(out Type? dataType, config.TypeName) || dataType == null)
+            if (!GetType(out var type, config.TypeName) || type == null)
             {
                 return false;
             }
 
-            var tag = ResolveTag(config.Tag);
+            var tag = config.Tag != null ? ResolveTag(config.Tag) : -1;
+            var value = config.Value ?? Activator.CreateInstance(type);
 
-            switch (tag)
+            if (value == null)
             {
-                case -1 when string.IsNullOrEmpty(config.Value):
-                    return WithData(dataType);
-                case -1:
-                    return WithData(dataType, config.Value);
-                default:
-                    return string.IsNullOrEmpty(config.Value) ? WithData(dataType, tag) : WithData(dataType, config.Value, tag);
+                throw new Exception("Unable to create default value");
             }
+
+            return tag switch
+            {
+                -1 => WithData(type, value),
+                _ => WithData(type, value, tag)
+            };
         }
 
-        private bool WithData(Type value)
+        private bool WithData(Type type, object value)
         {
-            MethodInfo genericMethod = _voidWithData.MakeGenericMethod(value);
-            genericMethod.Invoke(this, null);
-            return true;
+            var convertedValue = Convert.ChangeType(value, type);
+
+            if (convertedValue == null)
+            {
+                throw new Exception("Unable to create default value");
+            }
+
+            return WithData(_withDataTValue, type, convertedValue);
         }
 
-        private bool WithData(Type dataType, string value)
+        private bool WithData(Type type, object value, long tag)
         {
-            var convertedValue = Convert.ChangeType(value, dataType);
-            
-            MethodInfo genericMethod = _paramWithData.MakeGenericMethod(dataType);
-            genericMethod.Invoke(this, new[] { convertedValue });
-            return true;
+            var convertedValue = Convert.ChangeType(value, type);
+            return WithData(_withDataTValueTag, type, convertedValue, tag);
         }
 
-        private bool WithData(Type dataType, long tag)
+        private bool WithData(MethodInfo method, Type type, params object[] mParams)
         {
-            MethodInfo genericMethod = _tagWithData.MakeGenericMethod(dataType);
-            genericMethod.Invoke(this, new object[] { tag });
-            return true;
-        }
-
-        private bool WithData(Type dataType, string value, long tag)
-        {
-            var convertedValue = Convert.ChangeType(value, dataType);
-            
-            MethodInfo genericMethod = _paramTagWithData.MakeGenericMethod(dataType);
-            genericMethod.Invoke(this, new[] { convertedValue, tag });
+            MethodInfo genericMethod = method.MakeGenericMethod(type);
+            genericMethod.Invoke(this, mParams);
             return true;
         }
 
