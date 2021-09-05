@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using Messaging.Data;
 using Messaging.Interfaces;
 
@@ -58,21 +59,29 @@ namespace Messaging.Abstractions
                 throw new Exception($"Registered type incompatible with requested type");
             }
 
+            // No serializer provided
             if (serializer == null)
             {
-                serializer = _serializerFactory.Get<T>();
+                var tType = typeof(T);
+
+                if (tType.IsArray && tType.GetElementType()!.IsValueType && _serializerFactory.EnableDefaultValueTypeArraySerialization)
+                {
+                    var serializerType = typeof(Serializer.ArrayTypeSerializer<>);
+                    var s = serializerType.MakeGenericType(tType.GetElementType()!);
+                    serializer = (ISerializer<T>)Activator.CreateInstance(s, (value as Array)!.Length)!;
+                }
+                else
+                {
+                    serializer = _serializerFactory.Get<T>();
+                }
 
                 if (serializer == null)
                 {
                     throw new Exception("Unable to get serializer for type");
                 }
             }
-            else
-            {
-                serializer.SetFactory(_serializerFactory);
-            }
-
-
+            
+            serializer.SetFactory(_serializerFactory);
 
             d.SetSerializer(serializer);
 

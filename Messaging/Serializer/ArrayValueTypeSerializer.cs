@@ -9,11 +9,18 @@ namespace Messaging.Serializer
     {
         private readonly Lazy<ISerializer<T>> _typSerializer;
 
-        private int FixedSize { get; set; }
+        public int FixedSize { get; set; }
+
+        public ArrayTypeSerializer() : this(0)
+        {
+
+        }
 
         public ArrayTypeSerializer(int fixedSize)
         {
-            _typSerializer = new Lazy<ISerializer<T>>(() => _factory.Get<T>());
+            _typSerializer = new Lazy<ISerializer<T>>(() => {
+                return _factory.Get<T>();
+            });
             FixedSize = fixedSize;
         }
 

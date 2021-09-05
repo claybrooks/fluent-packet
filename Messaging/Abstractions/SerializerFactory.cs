@@ -9,21 +9,11 @@ namespace Messaging.Abstractions
     {
         private readonly IDictionary<Type, ISerializer> _createdTypes = new Dictionary<Type, ISerializer>();
 
-        public void Register<T, TS>(Action<TS>? initializer) where TS : ISerializer, new()
-        {
-            Register<T, TS>();
+        private bool _enableDefaultTypeArraySerialization = false;
+        
+        public bool EnableDefaultValueTypeArraySerialization { get; set; }
 
-            if (initializer != null)
-            {
-                if (Get<T>() is not TS s)
-                {
-                    throw new Exception("Unable to register type to serializer");
-                }
-                initializer?.Invoke(s);
-            }
-        }
-
-        public void Register<T, TS>() where TS : ISerializer, new()
+        public void Register<T, TS>(Action<TS>? initializer = null) where TS : ISerializer, new()
         {
             var keyType = typeof(T);
             var valueType = typeof(TS);
@@ -39,6 +29,21 @@ namespace Messaging.Abstractions
             }
 
             _createdTypes.Add(keyType, new TS());
+
+            if (initializer != null)
+            {
+                if (Get<T>() is not TS s)
+                {
+                    throw new Exception("Unable to register type to serializer");
+                }
+                initializer?.Invoke(s);
+            }
+        }
+
+        public bool Has<T>()
+        {
+            var keyType = typeof(T);
+            return _createdTypes.ContainsKey(keyType);
         }
 
         public ISerializer<T> Get<T>()
@@ -52,13 +57,12 @@ namespace Messaging.Abstractions
                     var helper = GetValueTypeRegisterHelper<T>();
                     helper.Register(this);
                 }
-                /*
-                else if (typeKey.IsArray)
+                
+                else if (typeKey.IsArray && EnableDefaultValueTypeArraySerialization)
                 {
                     var helper = GetArrayValueTypeRegisterHelper<T>();
                     helper.Register(this);
                 }
-                */
             }
 
             if (!_createdTypes.TryGetValue(typeKey, out var s))
@@ -130,14 +134,12 @@ namespace Messaging.Abstractions
             }
         }
 
-        /*
         internal class ArrayValueTypeRegisterHelper<T, TE> : RegisterHelper where TE : struct
         {
-            public override void Register(SerializerFactory factory)
+            public override void Register(SerializerFactory factory )
             {
-                factory.Register<T, ArrayTypeSerializer<TE>>(parameters);
+                factory.Register<T, ArrayTypeSerializer<TE>>();
             }
         }
-        */
     }
 }

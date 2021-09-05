@@ -21,6 +21,7 @@ namespace Test
         {
             var message = new DefaultBuilder()
                 .WithData<byte>(9)
+                .WithData(new byte[3] { 3, 2, 1 })
                 .WithData<short>(2)
                 .Build();
 
@@ -37,7 +38,6 @@ namespace Test
                 .WithVendorInfo(new VendorInfo() { Enabled = false, VendorId = 0xDEAD })
                 .WithSiteInfo(new SiteInfo() { SiteId = 0xBEEF, Enabled = true })
                 .WithStatusArray(new byte[5] {5,4,3,2,1})
-                .WithSiteInfo(2, new SiteInfo() {  SiteId = 9, Enabled = true })
                 .WithCompositeInfo(new CompositeInfo()
                 {
                     CompositeId = 0xDEAD,

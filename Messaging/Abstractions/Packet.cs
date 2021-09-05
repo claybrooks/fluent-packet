@@ -145,6 +145,7 @@ namespace Messaging.Abstractions
         public DefaultPacket()
         {
             SerializerFactory.Register<bool, BoolSerializer>();
+            SerializerFactory.EnableDefaultValueTypeArraySerialization = true;
         }
     }
 
