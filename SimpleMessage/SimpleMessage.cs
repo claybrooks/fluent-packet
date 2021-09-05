@@ -19,30 +19,30 @@ namespace SimpleMessage
             return new Builder<SimpleMessage>()
                 .WithData<byte>(0x02)
                 .WithData(delimiter)
-                .WithData(0, (long)SimpleMessage.Tags.DeviceId)
+                .WithData(0,                    (long)SimpleMessage.Tags.DeviceId)
                 .WithData(delimiter)
-                .WithData(false, (long)SimpleMessage.Tags.DeviceEnabled)
+                .WithData(false,                (long)SimpleMessage.Tags.DeviceEnabled)
                 .WithData(delimiter)
-                .WithData(0, (long)SimpleMessage.Tags.DeviceState)
+                .WithData(0,                    (long)SimpleMessage.Tags.DeviceState)
                 .WithData(delimiter)
-                .WithData(new char[10], (long)SimpleMessage.Tags.DeviceName, new ArrayTypeSerializer<char>(10))
+                .WithData(new char[10],         (long)SimpleMessage.Tags.DeviceName, new ArrayTypeSerializer<char>(10))
                 .WithData(delimiter)
-                .WithData(new SiteInfo(), (long)SimpleMessage.Tags.SiteInfo)
+                .WithData(new SiteInfo(),       (long)SimpleMessage.Tags.SiteInfo)
                 .WithData(delimiter)
-                .WithData(new VendorInfo(), (long)SimpleMessage.Tags.VendorInfo)
+                .WithData(new VendorInfo(),     (long)SimpleMessage.Tags.VendorInfo)
                 .WithData(delimiter)
-                .WithData(new CompositeInfo(), (long)SimpleMessage.Tags.CompositeInfo)
+                .WithData(new CompositeInfo(),  (long)SimpleMessage.Tags.CompositeInfo)
                 .WithData(delimiter)
-                .WithData(new byte[5], (long)SimpleMessage.Tags.StatusArray, new ArrayTypeSerializer<byte>(5))
+                .WithData(new byte[5],          (long)SimpleMessage.Tags.StatusArray, new ArrayTypeSerializer<byte>(5))
                 .WithData(delimiter)
-                .WithData(new SiteInfo[5], (long)SimpleMessage.Tags.SiteInfoArray, new ArrayTypeSerializer<SiteInfo>(5))
+                .WithData(new SiteInfo[5],      (long)SimpleMessage.Tags.SiteInfoArray, new ArrayTypeSerializer<SiteInfo>(5))
                 .WithData(delimiter)
                 .WithData<byte>(0x03)
                 .Build();
         }
     }
 
-    public class SimpleMessage : Packet
+    public class SimpleMessage : DefaultPacket
     {
         public enum Tags : long
         {
@@ -62,7 +62,6 @@ namespace SimpleMessage
             Register<SiteInfo>();
             Register<VendorInfo, VendorType, VendorInfoSerializer>();
             Register<CompositeInfo, CompositeType, CompositeInfoSerializer>();
-            SerializerFactory.Register<bool, BoolSerializer>();
         }
 
         public int DeviceId

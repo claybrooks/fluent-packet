@@ -229,4 +229,9 @@ namespace Messaging.Abstractions
 
         #endregion
     }
+
+    public class DefaultBuilder : Builder<DefaultPacket>
+    {
+    }
+
 }

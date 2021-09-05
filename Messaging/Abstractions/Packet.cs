@@ -131,12 +131,21 @@ namespace Messaging.Abstractions
             return true;
         }
 
-        public void Clear()
+        public void ClearTagged()
         {
-            foreach(Data data in _data)
+            foreach(Data data in _taggedData.Values)
             {
                 data.Clear();
             }
         }
     }
+
+    public class DefaultPacket : Packet
+    {
+        public DefaultPacket()
+        {
+            SerializerFactory.Register<bool, BoolSerializer>();
+        }
+    }
+
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using Messaging.Abstractions;
+using Messaging.Serializer;
 using SimpleMessage;
 using SimpleMessage.Components;
 
@@ -9,10 +10,21 @@ namespace Test
     {
         private static void Main()
         {
+            TestBuilder();
             TestCodeBuilder();
             TestConfigBuilder();
             
             Console.ReadKey();
+        }
+
+        private static void TestBuilder()
+        {
+            var message = new DefaultBuilder()
+                .WithData<byte>(9)
+                .WithData<short>(2)
+                .Build();
+
+            PrintPacket(message);
         }
 
         private static void TestCodeBuilder()
@@ -43,7 +55,9 @@ namespace Test
 
             PrintPacket(packet);
 
-            packet.Clear();
+            packet.ClearTagged();
+
+            packet.WithDeviceId(2);
 
             PrintPacket(packet);
         }
