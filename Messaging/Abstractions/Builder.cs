@@ -7,17 +7,6 @@ using Messaging.Interfaces;
 
 namespace Messaging.Abstractions
 {
-    internal class MethodInfoHelper
-    {
-        public static MethodInfo GetMethodInfo<T>(Expression<Action<T>> expression)
-        {
-            if (expression.Body is MethodCallExpression member)
-                return member.Method;
-
-            throw new ArgumentException("Expression is not a method", "expression");
-        }
-    }
-
     public class Builder<TP>
         where TP : Packet, new()
     {
@@ -42,10 +31,10 @@ namespace Messaging.Abstractions
 
                 switch (mp.Length)
                 {
-                    case 2:
+                    case 3:
                         _withDataTValueTag = mi;
                         break;
-                    case 1:
+                    case 2:
                         _withDataTValue = mi;
                         break;
                 }
@@ -80,15 +69,15 @@ namespace Messaging.Abstractions
             return _packet;
         }
 
-        public Builder<TP> WithData<T>(T value)
+        public Builder<TP> WithData<T>(T value, ISerializer<T>? serializer = null)
         {
-            _packet.AddData(value);
+            _packet.AddData(value, serializer);
             return this;
         }
 
-        public Builder<TP> WithData<T>(T value, long tag)
+        public Builder<TP> WithData<T>(T value, long tag, ISerializer<T>? serializer = null)
         {
-            _packet.AddData(value, tag);
+            _packet.AddData(value, tag, serializer);
             return this;
         }
 
@@ -113,7 +102,85 @@ namespace Messaging.Abstractions
             }
 
             var tag = config.Tag != null ? ResolveTag(config.Tag) : -1;
-            var value = config.Value ?? Activator.CreateInstance(type);
+
+            object? value = null;
+            ISerializer? serializer= null;
+
+            if (type.IsArray)
+            {
+                if (config.TypeArgs == null || config.TypeArgs.Length != 1)
+                {
+                    throw new Exception("TypeArgs for array must be of size 1, indicating the length of the array");
+                }
+                int size = Convert.ToInt32(config.TypeArgs[0]);
+                
+                var elementType = type.GetElementType();
+                if (elementType == null || elementType.IsGenericType || elementType.IsAbstract)
+                {
+                    throw new Exception("Invalid element type for array");
+                }
+
+                value = Array.CreateInstance(elementType, size);
+
+                var serializerClass = typeof(Serializer.ArrayTypeSerializer<>);
+                var typedSerializerClass = serializerClass.MakeGenericType(elementType);
+                var oSerializer = Activator.CreateInstance(typedSerializerClass, size);
+                if (oSerializer == null)
+                {
+                    throw new Exception("Unable to create ArrayTypeSerializer");
+                }
+
+                serializer = oSerializer as ISerializer;
+                if (serializer == null)
+                {
+                    throw new Exception("Unable to create ISerializer from ArrayTypeSerializer");
+                }
+            }
+            else
+            {
+                object?[]? parameters = null;
+                bool success = false;
+                if (config.TypeArgs != null && config.TypeArgs.Length > 0)
+                {
+                    var constructors = type.GetConstructors();
+                    foreach (ConstructorInfo constructor in constructors)
+                    {
+                        var ps = constructor.GetParameters();
+                        if (ps.Length != config.TypeArgs.Length)
+                        {
+                            continue;
+                        }
+
+                        success = true;
+                        parameters = new object?[ps.Length];
+                        for(int i = 0; i < ps.Length; i++)
+                        {
+                            try
+                            {
+                                parameters[i] = Convert.ChangeType(config.TypeArgs[i], ps[i].ParameterType);
+                            }
+                            catch(InvalidCastException)
+                            {
+                                success = false;
+                                break;
+                            }
+                        }
+
+                        if (success)
+                        {
+                            break;
+                        }
+                    }
+
+                    if (!success)
+                    {
+                        throw new Exception("Unable to match TypeArgs to a constructor");
+                    }
+                }
+
+                value = config.Value ?? Activator.CreateInstance(type, parameters);
+                value = Convert.ChangeType(value, type);
+            }
 
             if (value == null)
             {
@@ -122,33 +189,25 @@ namespace Messaging.Abstractions
 
             return tag switch
             {
-                -1 => WithData(type, value),
-                _ => WithData(type, value, tag)
+                -1 => WithData(type, value, serializer),
+                _ => WithData(type, value, tag, serializer)
             };
         }
 
-        private bool WithData(Type type, object value)
+        private bool WithData(Type type, object value, ISerializer? serializer = null)
         {
-            var convertedValue = Convert.ChangeType(value, type);
-
-            if (convertedValue == null)
-            {
-                throw new Exception("Unable to create default value");
-            }
-
-            return WithData(_withDataTValue, type, convertedValue);
+            return WithData(_withDataTValue, type, new object?[] { value, serializer });
         }
 
-        private bool WithData(Type type, object value, long tag)
+        private bool WithData(Type type, object value, long tag, ISerializer? serializer = null)
         {
-            var convertedValue = Convert.ChangeType(value, type);
-            return WithData(_withDataTValueTag, type, convertedValue, tag);
+            return WithData(_withDataTValueTag, type, new object?[] { value, tag, serializer });
         }
 
-        private bool WithData(MethodInfo method, Type type, params object[] mParams)
+        private bool WithData(MethodInfo method, Type type, params object?[]? parameters)
         {
             MethodInfo genericMethod = method.MakeGenericMethod(type);
-            genericMethod.Invoke(this, mParams);
+            genericMethod.Invoke(this, parameters);
             return true;
         }
 

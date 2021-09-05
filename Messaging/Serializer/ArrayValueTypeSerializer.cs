@@ -5,27 +5,28 @@ using Messaging.Interfaces;
 
 namespace Messaging.Serializer
 {
-    public class ArrayValueTypeSerializer<T> : Serializer<T[]> where T : struct
+    public class ArrayTypeSerializer<T> : Serializer<T[]>
     {
         private readonly Lazy<ISerializer<T>> _typSerializer;
-        // TODO make this configurable
-        private readonly int _fixedSize = 5;
 
-        public ArrayValueTypeSerializer()
+        private int FixedSize { get; set; }
+
+        public ArrayTypeSerializer(int fixedSize)
         {
             _typSerializer = new Lazy<ISerializer<T>>(() => _factory.Get<T>());
+            FixedSize = fixedSize;
         }
 
         public override bool Deserialize(ref T[] value, byte[] data, int offset)
         {
-            if (value.Length != _fixedSize)
+            if (value.Length != FixedSize)
             {
-                value = new T[_fixedSize];
+                value = new T[FixedSize];
             }
 
             var tLength = _typSerializer.Value.Length();
             var tOffset = offset;
-            for (var i = 0; i < _fixedSize; ++i)
+            for (var i = 0; i < value.Length; ++i)
             {
                 if (!_typSerializer.Value.Deserialize(ref value[i], data, tOffset))
                 {
@@ -60,7 +61,7 @@ namespace Messaging.Serializer
 
         public override int Length()
         {
-            return _fixedSize * _typSerializer.Value.Length();
+            return FixedSize * _typSerializer.Value.Length();
         }
     }
 }

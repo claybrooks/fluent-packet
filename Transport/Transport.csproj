@@ -6,12 +6,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Messaging\Messaging.csproj" />
+    <Compile Remove="Abstractions\**" />
+    <Compile Remove="Interfaces\**" />
+    <EmbeddedResource Remove="Abstractions\**" />
+    <EmbeddedResource Remove="Interfaces\**" />
+    <None Remove="Abstractions\**" />
+    <None Remove="Interfaces\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Abstractions\" />
-    <Folder Include="Interfaces\" />
+    <ProjectReference Include="..\Messaging\Messaging.csproj" />
   </ItemGroup>
 
 </Project>

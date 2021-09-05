@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Messaging.Data;
+using Messaging.Interfaces;
 
 namespace Messaging.Abstractions
 {
@@ -34,7 +35,7 @@ namespace Messaging.Abstractions
             _registeredType.Add(keyType, valueType);
         }
 
-        public Data<T> Create<T>(T value)
+        public Data<T> Create<T>(T value, ISerializer<T>? serializer = null)
         {
             if (value == null)
             {
@@ -57,7 +58,23 @@ namespace Messaging.Abstractions
                 throw new Exception($"Registered type incompatible with requested type");
             }
 
-            d.SetSerializer(_serializerFactory.Get<T>());
+            if (serializer == null)
+            {
+                serializer = _serializerFactory.Get<T>();
+
+                if (serializer == null)
+                {
+                    throw new Exception("Unable to get serializer for type");
+                }
+            }
+            else
+            {
+                serializer.SetFactory(_serializerFactory);
+            }
+
+
+
+            d.SetSerializer(serializer);
 
             return d;
         }

@@ -1,0 +1,51 @@
+﻿[
+    {
+        "TypeName": "System.Byte",
+        "Value": "1"
+    },
+    {
+        "TypeName": "System.Byte",
+        "Value": "2"
+    },
+    {
+        "TypeName": "System.Boolean",
+        "Value": "true",
+        "Tag": 1
+    },
+    {
+        "TypeName": "System.Int32",
+        "Value": "1337",
+        "Tag": 0
+    },
+    {
+        "TypeName": "System.Int32",
+        "Value": "3",
+        "Tag": 2
+    },
+    {
+        "TypeName": "System.Byte",
+        "Value": "4"
+    },
+    {
+        "TypeName": "System.Char",
+        "Value": "0"
+    },
+    {
+        "TypeName": "SiteInfo",
+        "Tag": 4
+    },
+    {
+        "TypeName": "VendorInfo",
+        "TypeArgs": [ 7, false ],
+        "Tag": 5
+    },
+    {
+        "TypeName": "CompositeInfo",
+        "Tag": 6
+    },
+    {
+        "TypeName": "System.Char[]",
+        "TypeArgs": [ 10 ],
+        "Tag": 3
+    }
+] 

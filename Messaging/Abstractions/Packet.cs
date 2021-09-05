@@ -8,7 +8,7 @@ namespace Messaging.Abstractions
 {
     public class Packet
     {
-        private readonly ICollection<Data> _data;
+        private readonly IList<Data> _data;
         private readonly IDictionary<long, Data> _taggedData;
 
         public DataFactory DataFactory { get; }
@@ -32,13 +32,7 @@ namespace Messaging.Abstractions
         public void Register<T>(Action<ISerializer<T>>? initializer = null)
             where T : struct
         {
-            Register(typeof(T).Name, initializer);
-        }
-
-        public void Register<T>(string name, Action<ValueTypeSerializer<T>>? initializer = null)
-            where T : struct
-        {
-            Register<T, Data<T>, ValueTypeSerializer<T>>(name, initializer);
+            Register<T, Messaging.Data.ValueType<T>, ValueTypeSerializer<T>>(typeof(T).Name, initializer);
         }
 
         public void Register<T, TD, TS>(Action<TS>? initializer = null)
@@ -57,15 +51,15 @@ namespace Messaging.Abstractions
             SerializerFactory.Register<T, TS>(initializer);
         }
 
-        public bool AddData<T>(T value)
+        public bool AddData<T>(T value, ISerializer<T>? serializer = null)
         {
-            _data.Add(DataFactory.Create(value));
+            _data.Add(DataFactory.Create(value, serializer));
             return true;
         }
 
-        public bool AddData<T>(T value, long tag)
+        public bool AddData<T>(T value, long tag, ISerializer<T>? serializer = null)
         {
-            var data = DataFactory.Create(value);
+            var data = DataFactory.Create(value, serializer);
             _data.Add(data);
             _taggedData.Add(tag, data);
             return true;
@@ -90,11 +84,9 @@ namespace Messaging.Abstractions
 
         public bool SetData<T>(long tag, T value)
         {
-            _taggedData.TryGetValue(tag, out var data);
-
-            if (data == null)
+            if (!_taggedData.TryGetValue(tag, out var data))
             {
-                return false;
+                throw new Exception($"Invalid Key");
             }
 
             if (data is not Data<T> typedData)
@@ -129,7 +121,6 @@ namespace Messaging.Abstractions
 
         public bool Serialize(out byte[] bytes)
         {
-
             bytes = new byte[Length()];
 
             var idx = 0;
@@ -138,6 +129,14 @@ namespace Messaging.Abstractions
                 idx += data.Serialize(bytes, idx);
             }
             return true;
+        }
+
+        public void Clear()
+        {
+            foreach(Data data in _data)
+            {
+                data.Clear();
+            }
         }
     }
 }

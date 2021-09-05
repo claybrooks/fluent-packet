@@ -10,4 +10,13 @@
     <ProjectReference Include="..\SimpleMessage\SimpleMessage.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Configs\SimpleMessage.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="NewFolder\SimpleMessage.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

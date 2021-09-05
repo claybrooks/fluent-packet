@@ -8,6 +8,16 @@ namespace SimpleMessage.Components
 {
     public class VendorInfo
     {
+        public VendorInfo()
+        {
+
+        }
+        public VendorInfo(int vendorId, bool enabled)
+        {
+            VendorId = vendorId;
+            Enabled = enabled;
+        }
+
         public int VendorId;
         public bool Enabled;
     }
@@ -46,6 +56,20 @@ namespace SimpleMessage.Components
         public override int Length()
         {
             return 6;
+        }
+    }
+
+    public class VendorType: ReferenceType<VendorInfo>
+    {
+        public VendorType(VendorInfo info) : base(info)
+        {
+
+        }
+
+        public override void Clear()
+        {
+            Value.VendorId = 0;
+            Value.Enabled = false;
         }
     }
 }

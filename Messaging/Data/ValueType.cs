@@ -13,5 +13,10 @@ namespace Messaging.Data
         {
 
         }
+
+        public override void Clear()
+        {
+            Value = default(T);
+        }
     }
 }

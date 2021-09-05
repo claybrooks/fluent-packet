@@ -57,4 +57,19 @@ namespace SimpleMessage.Components
             return 4 + _siteInfoSerializer.Value.Length() + _vendorInfoSerializer.Value.Length();
         }
     }
+
+    public class CompositeType : ReferenceType<CompositeInfo>
+    {
+        public CompositeType(CompositeInfo info) : base(info)
+        {
+
+        }
+
+        public override void Clear()
+        {
+            Value.CompositeId = 0;
+            Value.SiteInfo = new SiteInfo();
+            Value.VendorInfo = new VendorInfo();
+        }
+    }
 }

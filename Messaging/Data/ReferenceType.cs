@@ -2,7 +2,7 @@
 
 namespace Messaging.Data
 {
-    public class ReferenceType<T> : Data<T>
+    public abstract class ReferenceType<T> : Data<T>
     {
         public ReferenceType(T value) : base(value)
         {

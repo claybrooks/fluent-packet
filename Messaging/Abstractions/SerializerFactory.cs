@@ -9,14 +9,18 @@ namespace Messaging.Abstractions
     {
         private readonly IDictionary<Type, ISerializer> _createdTypes = new Dictionary<Type, ISerializer>();
 
-        public void Register<T, TS>(Action<TS>? initializer) where TS : class, ISerializer, new()
+        public void Register<T, TS>(Action<TS>? initializer) where TS : ISerializer, new()
         {
             Register<T, TS>();
-            if (Get<T>() is not TS s)
+
+            if (initializer != null)
             {
-                throw new Exception("Unable to register type to serializer");
+                if (Get<T>() is not TS s)
+                {
+                    throw new Exception("Unable to register type to serializer");
+                }
+                initializer?.Invoke(s);
             }
-            initializer?.Invoke(s);
         }
 
         public void Register<T, TS>() where TS : ISerializer, new()
@@ -48,11 +52,13 @@ namespace Messaging.Abstractions
                     var helper = GetValueTypeRegisterHelper<T>();
                     helper.Register(this);
                 }
+                /*
                 else if (typeKey.IsArray)
                 {
                     var helper = GetArrayValueTypeRegisterHelper<T>();
                     helper.Register(this);
                 }
+                */
             }
 
             if (!_createdTypes.TryGetValue(typeKey, out var s))
@@ -124,12 +130,14 @@ namespace Messaging.Abstractions
             }
         }
 
+        /*
         internal class ArrayValueTypeRegisterHelper<T, TE> : RegisterHelper where TE : struct
         {
             public override void Register(SerializerFactory factory)
             {
-                factory.Register<T, ArrayValueTypeSerializer<TE>>();
+                factory.Register<T, ArrayTypeSerializer<TE>>(parameters);
             }
         }
+        */
     }
 }

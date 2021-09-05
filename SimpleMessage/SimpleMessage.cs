@@ -25,7 +25,7 @@ namespace SimpleMessage
                 .WithData(delimiter)
                 .WithData(0, (long)SimpleMessage.Tags.DeviceState)
                 .WithData(delimiter)
-                .WithData("", (long)SimpleMessage.Tags.DeviceName)
+                .WithData(new char[10], (long)SimpleMessage.Tags.DeviceName, new ArrayTypeSerializer<char>(10))
                 .WithData(delimiter)
                 .WithData(new SiteInfo(), (long)SimpleMessage.Tags.SiteInfo)
                 .WithData(delimiter)
@@ -33,7 +33,9 @@ namespace SimpleMessage
                 .WithData(delimiter)
                 .WithData(new CompositeInfo(), (long)SimpleMessage.Tags.CompositeInfo)
                 .WithData(delimiter)
-                .WithData(new byte[] {1,2,3,4,5}, (long)SimpleMessage.Tags.StatusArray)
+                .WithData(new byte[5], (long)SimpleMessage.Tags.StatusArray, new ArrayTypeSerializer<byte>(5))
+                .WithData(delimiter)
+                .WithData(new SiteInfo[5], (long)SimpleMessage.Tags.SiteInfoArray, new ArrayTypeSerializer<SiteInfo>(5))
                 .WithData(delimiter)
                 .WithData<byte>(0x03)
                 .Build();
@@ -51,18 +53,15 @@ namespace SimpleMessage
             SiteInfo,
             VendorInfo,
             CompositeInfo,
-            StatusArray
+            StatusArray,
+            SiteInfoArray
         }
 
         public SimpleMessage()
         {
             Register<SiteInfo>();
-            Register<VendorInfo, ReferenceType<VendorInfo>, VendorInfoSerializer>();
-            Register<CompositeInfo, ReferenceType<CompositeInfo>, CompositeInfoSerializer>();
-            SerializerFactory.Register<string, StringSerializer>(s =>
-            {
-                s.FixedLength = 10;
-            });
+            Register<VendorInfo, VendorType, VendorInfoSerializer>();
+            Register<CompositeInfo, CompositeType, CompositeInfoSerializer>();
             SerializerFactory.Register<bool, BoolSerializer>();
         }
 
@@ -84,9 +83,9 @@ namespace SimpleMessage
             set => SetData((long)Tags.DeviceState, value);
         }
 
-        public string DeviceName
+        public char[] DeviceName
         {
-            get => GetData<string>((long)Tags.DeviceName);
+            get => GetData<char[]>((long)Tags.DeviceName);
             set => SetData((long)Tags.DeviceName, value);
         }
 
@@ -114,6 +113,12 @@ namespace SimpleMessage
             set => SetData((long) Tags.StatusArray, value);
         }
 
+        public SiteInfo[] SiteInfoArray
+        {
+            get => GetData<SiteInfo[]>((long) Tags.SiteInfoArray);
+            set => SetData((long) Tags.SiteInfoArray, value);
+        }
+
         public SimpleMessage WithDeviceId(int id)
         {
             DeviceId = id;
@@ -132,7 +137,7 @@ namespace SimpleMessage
             return this;
         }
 
-        public SimpleMessage WithDeviceName(string name)
+        public SimpleMessage WithDeviceName(char[] name)
         {
             DeviceName = name;
             return this;
@@ -159,6 +164,12 @@ namespace SimpleMessage
         public SimpleMessage WithStatusArray(byte[] array)
         {
             StatusArray = array;
+            return this;
+        }
+
+        public SimpleMessage WithSiteInfo(int index, SiteInfo info)
+        {
+            SiteInfoArray[index] = info;
             return this;
         }
     }

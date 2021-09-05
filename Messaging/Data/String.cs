@@ -4,9 +4,17 @@
     {
         public String() : this("")
         {
+
         }
+
         public String(string value) : base(value)
         {
+
+        }
+
+        public override void Clear()
+        {
+            Value = "";
         }
     }
 }

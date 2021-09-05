@@ -8,6 +8,8 @@ namespace Messaging.Abstractions
     public class JsonConfigEntry : IConfig
     {
         public string TypeName { get; set; } = "";
+
+        public object[]? TypeArgs { get; set; } = null;
                
         public string? Value { get; set; } = null;
                

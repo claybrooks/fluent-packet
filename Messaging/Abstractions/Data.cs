@@ -9,9 +9,11 @@ namespace Messaging.Abstractions
         public abstract int Serialize(byte[] data, int offset);
 
         public abstract bool Deserialize(byte[] data, int offset);
+
+        public abstract void Clear();
     }
 
-    public class Data<T> : Data
+    public abstract class Data<T> : Data
     {
         protected ISerializer<T> Serializer { get; private set; } = null!;
 

@@ -18,12 +18,14 @@ namespace Test
         private static void TestCodeBuilder()
         {
             var packet = SimpleMessageBuilder.Construct('}')
-                .WithDeviceName("DEVICE_BBB")
+                .WithDeviceName("DEVICE_BBB".ToCharArray())
                 .WithDeviceEnabled(true)
                 .WithDeviceId(6)
                 .WithDeviceState(2)
                 .WithVendorInfo(new VendorInfo() { Enabled = false, VendorId = 0xDEAD })
                 .WithSiteInfo(new SiteInfo() { SiteId = 0xBEEF, Enabled = true })
+                .WithStatusArray(new byte[5] {5,4,3,2,1})
+                .WithSiteInfo(2, new SiteInfo() {  SiteId = 9, Enabled = true })
                 .WithCompositeInfo(new CompositeInfo()
                 {
                     CompositeId = 0xDEAD,
@@ -40,16 +42,19 @@ namespace Test
                 });
 
             PrintPacket(packet);
+
+            packet.Clear();
+
+            PrintPacket(packet);
         }
 
         private static void TestConfigBuilder()
         {
             var packet = SimpleMessageBuilder.ConstructFromConfig("Configs/SimpleMessage.json", ':')
-                .WithDeviceName("DEVICE_BBB")
+                .WithDeviceName("DEVICE_BBB".ToCharArray())
                 .WithDeviceEnabled(true)
                 .WithDeviceId(6)
                 .WithDeviceState(2)
-                .WithVendorInfo(new VendorInfo() { Enabled = false, VendorId = 0xDEAD })
                 .WithSiteInfo(new SiteInfo() { SiteId = 0xBEEF, Enabled = true })
                 .WithCompositeInfo(new CompositeInfo()
                 {
