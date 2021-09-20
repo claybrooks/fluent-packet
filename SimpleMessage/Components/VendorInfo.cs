@@ -1,10 +1,9 @@
 ﻿using System;
 
-using Messaging.Abstractions;
-using Messaging.Data;
-using Messaging.Interfaces;
+using Messaging.Types;
+using Messaging.Serializer;
 
-namespace SimpleMessage.Components
+namespace SimplePacket.Components
 {
     public class VendorInfo
     {
@@ -43,9 +42,9 @@ namespace SimpleMessage.Components
 
         public override byte[] Serialize(VendorInfo value)
         {
-            byte[] data = new byte[6];
+            var data = new byte[6];
 
-            byte[] serializedVendorId = BitConverter.GetBytes(value.VendorId);
+            var serializedVendorId = BitConverter.GetBytes(value.VendorId);
             serializedVendorId.CopyTo(data, 0);
             data[4] = Convert.ToByte(',');
             data[5] = Convert.ToByte(value.Enabled);
@@ -56,20 +55,6 @@ namespace SimpleMessage.Components
         public override int Length()
         {
             return 6;
-        }
-    }
-
-    public class VendorType: ReferenceType<VendorInfo>
-    {
-        public VendorType(VendorInfo info) : base(info)
-        {
-
-        }
-
-        public override void Clear()
-        {
-            Value.VendorId = 0;
-            Value.Enabled = false;
         }
     }
 }

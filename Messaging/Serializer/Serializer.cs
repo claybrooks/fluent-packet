@@ -1,6 +1,7 @@
-﻿using Messaging.Interfaces;
+﻿using Messaging.Factory;
+using Messaging.Interfaces;
 
-namespace Messaging.Abstractions
+namespace Messaging.Serializer
 {
     public abstract class Serializer<T> : ISerializer<T>
     {

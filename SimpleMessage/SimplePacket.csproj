@@ -5,11 +5,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Messaging\Messaging.csproj" />
+    <Compile Remove="Configs\**" />
+    <EmbeddedResource Remove="Configs\**" />
+    <None Remove="Configs\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Configs\" />
+    <ProjectReference Include="..\Messaging\Messaging.csproj" />
   </ItemGroup>
 
 </Project>

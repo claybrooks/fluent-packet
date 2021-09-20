@@ -1,31 +1,31 @@
-﻿using System.Text;
-
-using Messaging.Abstractions;
+﻿using System.Linq;
+using System.Text;
 
 namespace Messaging.Serializer
 {
     public class StringSerializer : Serializer<string>
     {
-        public int FixedLength { get; set; }
+        private readonly int _fixedLength;
+
+        public StringSerializer(int fixedLength)
+        {
+            _fixedLength = fixedLength;
+        }
 
         public override bool Deserialize(ref string value, byte[] data, int offset)
         {
-            if (data.Length - offset < FixedLength)
+            if (data.Length - offset < _fixedLength)
             {
                 return false;
             }
 
-            value = Encoding.ASCII.GetString(data, offset, FixedLength);
+            value = Encoding.ASCII.GetString(data, offset, _fixedLength);
             return true;
         }
 
         public override byte[] Serialize(string value)
         {
-            byte[] data = new byte[FixedLength];
-            for(int i = 0; i < data.Length; ++i)
-            {
-                data[i] = 0x20;
-            }
+            byte[] data = Enumerable.Repeat<byte>(0x20, _fixedLength).ToArray();
             Encoding.ASCII.GetBytes(value).CopyTo(data, 0);
 
             return data;
@@ -33,7 +33,7 @@ namespace Messaging.Serializer
 
         public override int Length()
         {
-            return FixedLength;
+            return _fixedLength;
         }
     }
 }

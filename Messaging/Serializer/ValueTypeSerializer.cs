@@ -1,10 +1,9 @@
 ﻿using System.Runtime.InteropServices;
 
-using Messaging.Abstractions;
-
 namespace Messaging.Serializer
 {
-    public class ValueTypeSerializer<T> : Serializer<T> where T : struct
+    public class ValueTypeSerializer<T> : Serializer<T>
+        where T : struct
     {
         public override bool Deserialize(ref T value, byte[] data, int offset)
         {
@@ -27,7 +26,7 @@ namespace Messaging.Serializer
                 return false;
             }
 
-            value = (T) obj;
+            value = (T)obj;
 
             Marshal.FreeHGlobal(i);
 
@@ -36,7 +35,7 @@ namespace Messaging.Serializer
 
         public override byte[] Serialize(T value)
         {
-            var len = Marshal.SizeOf(value);
+            var len = Length();
             var arr = new byte[len];
 
             var ptr = Marshal.AllocHGlobal(len);

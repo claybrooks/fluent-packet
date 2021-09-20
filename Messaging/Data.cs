@@ -1,6 +1,6 @@
 ﻿using Messaging.Interfaces;
 
-namespace Messaging.Abstractions
+namespace Messaging
 {
     public abstract class Data
     {
@@ -15,35 +15,31 @@ namespace Messaging.Abstractions
 
     public abstract class Data<T> : Data
     {
-        protected ISerializer<T> Serializer { get; private set; } = null!;
+        protected readonly ISerializer<T> _serializer;
 
         private T _value;
 
         public T Value { get => _value; set => _value =value; }
-        
-        public Data(T value)
+
+        protected Data(T value, ISerializer<T> serializer)
         {
             _value = value;
-        }
-
-        public void SetSerializer(ISerializer<T> serializer)
-        {
-            Serializer = serializer;
+            _serializer = serializer;
         }
 
         public override int Length()
         {
-            return Serializer.Length();
+            return _serializer.Length();
         }
 
         public override int Serialize(byte[] data, int offset)
         {
-            return Serializer.Serialize(_value, data, offset);
+            return _serializer.Serialize(_value, data, offset);
         }
 
         public override bool Deserialize(byte[] data, int offset)
         {
-            return Serializer.Deserialize(ref _value, data, offset);
+            return _serializer.Deserialize(ref _value, data, offset);
         }
     }
 }

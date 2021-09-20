@@ -5,13 +5,13 @@ VisualStudioVersion = 16.0.31613.86
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Messaging", "Messaging\Messaging.csproj", "{6841FE28-7698-4BD7-AE67-9F4E181AFE96}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{409722BB-72B2-40F3-A62E-610B010CC608}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test", "Test\Test.csproj", "{409722BB-72B2-40F3-A62E-610B010CC608}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleMessage", "SimpleMessage\SimpleMessage.csproj", "{F3B5A1E9-C016-4EAD-A6CD-BCB0CC679A1E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimplePacket", "SimpleMessage\SimplePacket.csproj", "{F3B5A1E9-C016-4EAD-A6CD-BCB0CC679A1E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Transport", "Transport\Transport.csproj", "{93A05160-32B2-4C5F-BF63-44A686CA49F6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Transport", "Transport\Transport.csproj", "{93A05160-32B2-4C5F-BF63-44A686CA49F6}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Messages", "Messages", "{85A294FB-6576-4CE4-935A-99E1190ACF50}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Packets", "Packets", "{85A294FB-6576-4CE4-935A-99E1190ACF50}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

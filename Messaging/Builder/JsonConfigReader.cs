@@ -1,15 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using Messaging.Interfaces;
 using Newtonsoft.Json;
 
-namespace Messaging.Abstractions
+namespace Messaging.Builder
 {
     public class JsonConfigEntry : IConfig
     {
         public string TypeName { get; set; } = "";
 
-        public object[]? TypeArgs { get; set; } = null;
+        public object[] TypeArgs { get; set; } = {};
                
         public string? Value { get; set; } = null;
                

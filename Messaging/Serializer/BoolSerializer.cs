@@ -1,5 +1,4 @@
 ﻿using System;
-using Messaging.Abstractions;
 
 namespace Messaging.Serializer
 {
@@ -7,7 +6,7 @@ namespace Messaging.Serializer
     {
         public override bool Deserialize(ref bool value, byte[] data, int offset)
         {
-            if (data.Length - offset < 1)
+            if (offset >= data.Length)
             {
                 return false;
             }

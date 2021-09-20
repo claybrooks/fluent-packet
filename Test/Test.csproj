@@ -7,7 +7,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Messaging\Messaging.csproj" />
-    <ProjectReference Include="..\SimpleMessage\SimpleMessage.csproj" />
+    <ProjectReference Include="..\SimpleMessage\SimplePacket.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,10 +1,10 @@
 ﻿using System;
 
-using Messaging.Abstractions;
-using Messaging.Data;
+using Messaging.Types;
 using Messaging.Interfaces;
+using Messaging.Serializer;
 
-namespace SimpleMessage.Components
+namespace SimplePacket.Components
 {
     public class CompositeInfo
     {
@@ -58,9 +58,10 @@ namespace SimpleMessage.Components
         }
     }
 
-    public class CompositeType : ReferenceType<CompositeInfo>
+    /*
+    public class CompositeInfoReferenceType : ReferenceType<CompositeInfo>
     {
-        public CompositeType(CompositeInfo info) : base(info)
+        public CompositeInfoReferenceType(CompositeInfo info) : base(info, new CompositeInfoSerializer())
         {
 
         }
@@ -72,4 +73,5 @@ namespace SimpleMessage.Components
             Value.VendorInfo = new VendorInfo();
         }
     }
+    */
 }

@@ -1,5 +1,5 @@
 ﻿
-namespace SimpleMessage.Components
+namespace SimplePacket.Components
 {
     public struct SiteInfo
     {

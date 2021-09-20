@@ -1,5 +1,4 @@
-﻿
-using Messaging.Abstractions;
+﻿using Messaging.Factory;
 
 namespace Messaging.Interfaces
 {

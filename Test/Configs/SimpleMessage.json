@@ -47,5 +47,10 @@
         "TypeName": "System.Char[]",
         "TypeArgs": [ 10 ],
         "Tag": 3
+    },
+    {
+        "TypeName": "System.Byte[]",
+        "TypeArgs": [ 5 ],
+        "Tag": 7
     }
 ] 
