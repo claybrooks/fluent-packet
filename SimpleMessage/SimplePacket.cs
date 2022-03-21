@@ -1,4 +1,4 @@
-﻿using Messaging;
+﻿using FluentPacket;
 using SimplePacket.Components;
 
 namespace SimplePacket
@@ -18,11 +18,11 @@ namespace SimplePacket
             SiteInfoArray
         }
 
-        public SimplePacket()
+        public SimplePacket() : base()
         {
             Register<SiteInfo>();
             Register<VendorInfo, VendorInfoSerializer>();
-            Register<CompositeInfo, CompositeInfoSerializer>();
+            Register<CompositeInfo, CompositeInfoSerializer>(4);
         }
 
         public int DeviceId

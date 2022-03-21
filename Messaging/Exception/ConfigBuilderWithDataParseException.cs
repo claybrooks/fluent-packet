@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace Messaging.Exception
+namespace FluentPacket.Exception
 {
     class ConfigBuilderWithDataParseException : System.Exception
     {

@@ -1,7 +1,7 @@
-﻿using Messaging.Interfaces;
-using Messaging.Serializer;
+﻿using FluentPacket.Interfaces;
+using FluentPacket.Serializer;
 
-namespace Messaging.Types
+namespace FluentPacket.Types
 {
     public class ArrayValueType<T> : Data<T[]>
         where T : struct
@@ -15,7 +15,7 @@ namespace Messaging.Types
         {
 
         }
-        
+
         public override void Clear()
         {
             for (var i = 0; i < Value.Length; ++i)

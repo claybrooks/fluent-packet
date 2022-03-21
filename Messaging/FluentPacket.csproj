@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFrameworks>net6.0;net5.0;</TargetFrameworks>
+    <ApplicationIcon />
+    <StartupObject />
+    <Nullable>enable</Nullable>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Authors>Clay Brooks</Authors>
+    <Description>Fluent API for building fixed sized packets.  Supports custom type serialization and deserialization.</Description>
+    <PackageProjectUrl>https://github.com/claybrooks/vigilant-spork</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/claybrooks/vigilant-spork</RepositoryUrl>
+    <PackageTags>fluent;packet;serialize;deserialize</PackageTags>
+    <Copyright>This is free and unencumbered software released into the public domain.</Copyright>
+    <PackageLicenseExpression>Unlicense</PackageLicenseExpression>
+    <PackageReleaseNotes>Initial Release</PackageReleaseNotes>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+  </ItemGroup>
+
+</Project>

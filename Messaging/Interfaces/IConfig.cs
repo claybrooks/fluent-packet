@@ -1,5 +1,4 @@
-﻿
-namespace Messaging.Interfaces
+﻿namespace FluentPacket.Interfaces
 {
     public interface IConfig
     {

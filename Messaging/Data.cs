@@ -1,6 +1,6 @@
-﻿using Messaging.Interfaces;
+﻿using FluentPacket.Interfaces;
 
-namespace Messaging
+namespace FluentPacket
 {
     public abstract class Data
     {
@@ -19,7 +19,7 @@ namespace Messaging
 
         private T _value;
 
-        public T Value { get => _value; set => _value =value; }
+        public T Value { get => _value; set => _value = value; }
 
         protected Data(T value, ISerializer<T> serializer)
         {
@@ -39,7 +39,7 @@ namespace Messaging
 
         public override bool Deserialize(byte[] data, int offset)
         {
-            return _serializer.Deserialize(ref _value, data, offset);
+            return _serializer.Deserialize(out _value, data, offset);
         }
     }
 }

@@ -1,11 +1,10 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
-using Messaging.Helper;
-using Messaging.Types;
-using Messaging.Interfaces;
-using Messaging.Serializer;
+﻿using FluentPacket.Helper;
+using FluentPacket.Interfaces;
+using FluentPacket.Serializer;
+using FluentPacket.Types;
+using System;
 
-namespace Messaging.Factory
+namespace FluentPacket.Factory
 {
     public class DefaultRegister
     {

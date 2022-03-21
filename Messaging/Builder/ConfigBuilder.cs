@@ -1,16 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using FluentPacket.Exception;
+using FluentPacket.Helper;
+using FluentPacket.Interfaces;
+using System;
 using System.Reflection;
-using Messaging.Exception;
-using Messaging.Helper;
-using Messaging.Interfaces;
 
-namespace Messaging.Builder
+namespace FluentPacket.Builder
 {
-    public class ConfigBuilder<TP, TC> : Builder<TP>
-        where TP : Packet, new()
-        where TC : IConfigReader, new()
+    public class ConfigBuilder<P, C> : Builder<P>
+        where P : Packet, new()
+        where C : IConfigReader, new()
     {
 
         private readonly MethodInfo _withDataTValue;
@@ -20,7 +18,7 @@ namespace Messaging.Builder
 
         public ConfigBuilder()
         {
-            var tbType = typeof(Builder<TP>);
+            var tbType = typeof(Builder<P>);
 
             foreach (var methodInfo in tbType.GetMethods())
             {
@@ -46,7 +44,7 @@ namespace Messaging.Builder
             }
         }
         
-        public ConfigBuilder<TP, TC> WithConfig(string filename)
+        public ConfigBuilder<P, C> WithConfig(string filename)
         {
             _filename = filename;
             return this;
@@ -55,7 +53,7 @@ namespace Messaging.Builder
         public override void Assemble()
         {
             base.Assemble();
-            BuildFromFile(new TC(), _filename);
+            BuildFromFile(new C(), _filename);
         }
 
         #region Private Methods
@@ -79,11 +77,9 @@ namespace Messaging.Builder
             var type = GetType(config.TypeName);
 
             var tag = ResolveTag(config);
-
-            object value;
+            
             ISerializer? serializer = null;
-
-            value = type.IsArray ? (object) WithConfig_Array(config, type, out serializer) : (object) WithConfig_Object(config, type);
+            var value = type.IsArray ? (object) WithConfig_Array(config, type, out serializer) : (object) WithConfig_Object(config, type);
 
             return tag switch
             {

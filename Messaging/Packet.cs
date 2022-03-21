@@ -1,19 +1,19 @@
-﻿using System;
+﻿using FluentPacket.Exception;
+using FluentPacket.Factory;
+using FluentPacket.Interfaces;
+using FluentPacket.Serializer;
+using FluentPacket.Types;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Messaging.Exception;
-using Messaging.Factory;
-using Messaging.Types;
-using Messaging.Interfaces;
-using Messaging.Serializer;
 
-namespace Messaging
+namespace FluentPacket
 {
     public class Packet
     {
-        protected readonly IDictionary<int, Data> _taggedData = new Dictionary<int, Data>();
-        protected readonly IDictionary<int, Type> _taggedTypeHelper = new Dictionary<int, Type>();
-        protected readonly IList<Data> _data = new List<Data>();
+        private readonly IDictionary<int, Data> _taggedData = new Dictionary<int, Data>();
+        private readonly IDictionary<int, Type> _taggedTypeHelper = new Dictionary<int, Type>();
+        private readonly IList<Data> _data = new List<Data>();
 
         public DataFactory DataFactory { get; }
 
@@ -26,32 +26,32 @@ namespace Messaging
         public Packet()
         {
             DefaultRegister = new DefaultRegister();
-            
+
             SerializerFactory = new SerializerFactory();
             DataFactory = new DataFactory(SerializerFactory);
             TypeFactory = new TypeFactory();
         }
 
-        public void Register<T>(Action<ISerializer<T>>? initializer = null)
+        public void Register<T>()
             where T : struct
         {
-            Register<T, ValueType<T>, ValueTypeSerializer<T>>(typeof(T).Name, initializer);
+            Register<T, ValueType<T>, ValueTypeSerializer<T>>(typeof(T).Name);
         }
 
-        public void Register<T, TS>(Action<TS>? initializer = null)
+        public void Register<T, S>(params object[] serializerConstructorParams)
             where T : class
-            where TS : ISerializer<T>, new()
+            where S : ISerializer<T>
         {
-            Register<T, ReferenceType<T>, TS>(typeof(T).Name, initializer);
+            Register<T, ReferenceType<T>, S>(typeof(T).Name, serializerConstructorParams);
         }
 
-        public void Register<T, TD, TS>(string name, Action<TS>? initializer = null)
-            where TD : Data<T>
-            where TS : ISerializer<T>, new()
+        public void Register<T, D, S>(string name, params object[] serializerConstructorParams)
+            where D : Data<T>
+            where S : ISerializer<T>
         {
             TypeFactory.Register<T>(name);
-            DataFactory.Register<T, TD>();
-            SerializerFactory.Register<T, TS>(initializer);
+            DataFactory.Register<T, D>();
+            SerializerFactory.Register<T, S>(serializerConstructorParams);
         }
 
         public bool AddData<T>(T value, ISerializer<T>? serializer = null)
@@ -114,7 +114,7 @@ namespace Messaging
         public bool Deserialize(byte[] bytes)
         {
             var offset = 0;
-            foreach(var data in _data)
+            foreach (var data in _data)
             {
                 if (!data.Deserialize(bytes, offset))
                 {
@@ -159,7 +159,7 @@ namespace Messaging
 
     public class DefaultPacket : Packet
     {
-        public DefaultPacket()
+        public DefaultPacket() : base()
         {
             DefaultRegister.EnableDefaultArrayTypeRegistration = true;
             DefaultRegister.EnableDefaultValueTypeRegistration = true;

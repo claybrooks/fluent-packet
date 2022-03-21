@@ -1,29 +1,28 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
 
-namespace Messaging.Serializer
+namespace FluentPacket.Serializer
 {
     public class ValueTypeSerializer<T> : Serializer<T>
         where T : struct
     {
-        public override bool Deserialize(ref T value, byte[] data, int offset)
+        public override bool Deserialize(out T value, byte[] data, int offset)
         {
-            var length = Marshal.SizeOf(value);
+            var length = Length();
 
             if (data.Length - offset < length)
             {
-                return false;
+                throw new ArgumentOutOfRangeException(nameof(offset));
             }
 
             var i = Marshal.AllocHGlobal(length);
             Marshal.Copy(data, offset, i, length);
-            
-            var type = value.GetType();
 
-            var obj = Marshal.PtrToStructure(i, type);
+            var obj = Marshal.PtrToStructure(i, typeof(T));
 
             if (obj == null)
             {
-                return false;
+                throw new InvalidCastException($"Unable to cast byte data to {nameof(T)}");
             }
 
             value = (T)obj;

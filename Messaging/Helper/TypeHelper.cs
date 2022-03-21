@@ -1,8 +1,8 @@
-﻿using System;
+﻿using FluentPacket.Interfaces;
+using System;
 using System.Reflection;
-using Messaging.Interfaces;
 
-namespace Messaging.Helper
+namespace FluentPacket.Helper
 {
     public static class TypeHelper
     {

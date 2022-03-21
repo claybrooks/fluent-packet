@@ -1,10 +1,10 @@
-﻿using Messaging.Builder;
-using Messaging.Serializer;
+﻿using FluentPacket;
+using FluentPacket.Serializer;
 using SimplePacket.Components;
 
-namespace SimplePacket.Builder
+namespace SimplePacket
 {
-    public class Builder : Builder<SimplePacket>
+    public class SimplePacketBuilder : Builder<SimplePacket>
     {
         public override void Assemble()
         {

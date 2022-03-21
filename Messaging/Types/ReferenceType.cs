@@ -1,7 +1,7 @@
-﻿using System;
-using Messaging.Interfaces;
+﻿using FluentPacket.Interfaces;
+using System;
 
-namespace Messaging.Types
+namespace FluentPacket.Types
 {
     public class ReferenceType<T> : Data<T>
         where T : class
@@ -24,7 +24,6 @@ namespace Messaging.Types
             {
                 Value = t;
             }
-
         }
     }
 }

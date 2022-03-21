@@ -1,4 +1,4 @@
-﻿namespace Messaging.Exception
+﻿namespace FluentPacket.Exception
 {
     class NullValueRegisteredException : System.Exception
     {

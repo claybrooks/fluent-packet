@@ -1,59 +1,55 @@
-﻿using System;
+﻿using FluentPacket.Interfaces;
+using System;
 using System.Collections.Generic;
-using Messaging.Interfaces;
 
-namespace Messaging.Factory
+namespace FluentPacket.Factory
 {
     public class SerializerFactory
     {
-        private readonly IDictionary<Type, ISerializer> _createdTypes = new Dictionary<Type, ISerializer>();
+        private readonly IDictionary<Type, Type> _typeMap = new Dictionary<Type, Type>();
+        private readonly IDictionary<Type, object[]> _argMap = new Dictionary<Type, object[]>();
 
-        public void Register<T, TS>(Action<TS>? initializer = null)
-            where TS : ISerializer, new()
+        public void Register<T, S>(params object[] constructorArgs)
+            where S : ISerializer
         {
             var keyType = typeof(T);
-            var valueType = typeof(TS);
 
-            if (_createdTypes.ContainsKey(keyType))
+            if (_typeMap.ContainsKey(keyType))
             {
                 return;
             }
 
-            if (valueType.IsAbstract || valueType.IsInterface)
+            _typeMap.Add(keyType, typeof(S));
+
+            if (constructorArgs.Length > 0)
             {
-                throw new ArgumentException($"{nameof(T)} is not concrete");
+                _argMap.Add(keyType, constructorArgs);
             }
-
-            _createdTypes.Add(keyType, new TS());
-
-            if (initializer == null)
-            {
-                return;
-            }
-
-            if (Get<T>() is not TS s)
-            {
-                throw new InvalidCastException($"Registered serializer for type {nameof(T)} could not be case to {nameof(TS)}");
-            }
-
-            initializer.Invoke(s);
         }
 
         public ISerializer<T> Get<T>()
         {
             var typeKey = typeof(T);
             
-            if (!_createdTypes.TryGetValue(typeKey, out var s))
+            if (!_typeMap.ContainsKey(typeKey))
             {
                 throw new KeyNotFoundException($"Type {typeKey.Name} is not registered with {nameof(SerializerFactory)}");
             }
 
-            if (s is not ISerializer<T> ts)
+            object[] constructorArgs = {};
+            if (_argMap.ContainsKey(typeKey))
             {
-                throw new InvalidCastException($"Registered serializer for type {nameof(T)} cannot be cast to type {nameof(ISerializer<T>)}incompatible with requested type");
+                constructorArgs = _argMap[typeKey];
             }
 
+            var s = Activator.CreateInstance(_typeMap[typeKey], constructorArgs);
+
+            if (s is not ISerializer<T> ts)
+            {
+                throw new InvalidCastException($"Registered serializer for type {nameof(T)} cannot be cast to type {nameof(ISerializer<T>)}");
+            }
             ts.SetFactory(this);
+
             return ts;
         }
     }

@@ -1,4 +1,4 @@
-﻿using Messaging.Builder;
+﻿using FluentPacket.Builder;
 
 namespace SimplePacket.Builder
 {

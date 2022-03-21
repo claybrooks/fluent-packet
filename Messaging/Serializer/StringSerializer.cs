@@ -1,7 +1,8 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Text;
 
-namespace Messaging.Serializer
+namespace FluentPacket.Serializer
 {
     public class StringSerializer : Serializer<string>
     {
@@ -12,11 +13,11 @@ namespace Messaging.Serializer
             _fixedLength = fixedLength;
         }
 
-        public override bool Deserialize(ref string value, byte[] data, int offset)
+        public override bool Deserialize(out string value, byte[] data, int offset)
         {
             if (data.Length - offset < _fixedLength)
             {
-                return false;
+                throw new ArgumentOutOfRangeException(nameof(offset));
             }
 
             value = Encoding.ASCII.GetString(data, offset, _fixedLength);

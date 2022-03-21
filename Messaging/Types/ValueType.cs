@@ -1,7 +1,7 @@
-﻿using Messaging.Interfaces;
-using Messaging.Serializer;
+﻿using FluentPacket.Interfaces;
+using FluentPacket.Serializer;
 
-namespace Messaging.Types
+namespace FluentPacket.Types
 {
     public class ValueType<T> : Data<T>
         where T : struct
@@ -20,7 +20,7 @@ namespace Messaging.Types
         {
 
         }
-        
+
         public override void Clear()
         {
             Value = default;

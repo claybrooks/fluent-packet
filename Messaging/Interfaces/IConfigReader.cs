@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Messaging.Interfaces
+namespace FluentPacket.Interfaces
 {
     public interface IConfigReader
     {

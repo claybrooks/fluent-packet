@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Messaging.Factory
+namespace FluentPacket.Factory
 {
     public class TypeFactory
     {
@@ -12,8 +12,9 @@ namespace Messaging.Factory
             return _types.TryGetValue(name, out var type) ? type : DefaultRegisterAndGetValue(name);
         }
 
-        public void Register<T>(string name)
+        public void Register<T>(string? name = null)
         {
+            name ??= typeof(T).Name;
             _types.Add(name, typeof(T));
         }
 

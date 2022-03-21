@@ -1,8 +1,8 @@
-﻿using System;
-using Messaging.Helper;
-using Messaging.Interfaces;
+﻿using FluentPacket.Helper;
+using FluentPacket.Interfaces;
+using System;
 
-namespace Messaging.Serializer
+namespace FluentPacket.Serializer
 {
     public class ArrayTypeSerializer<T> : Serializer<T[]>
     {
@@ -16,18 +16,15 @@ namespace Messaging.Serializer
             FixedSize = fixedSize;
         }
 
-        public override bool Deserialize(ref T[] value, byte[] data, int offset)
+        public override bool Deserialize(out T[] value, byte[] data, int offset)
         {
-            if (value.Length != FixedSize)
-            {
-                value = new T[FixedSize];
-            }
+            value = new T[FixedSize];
 
             var tLength = _typeSerializer.Value.Length();
             var tOffset = offset;
             for (var i = 0; i < value.Length; ++i)
             {
-                if (!_typeSerializer.Value.Deserialize(ref value[i], data, tOffset))
+                if (!_typeSerializer.Value.Deserialize(out value[i], data, tOffset))
                 {
                     return false;
                 }
@@ -47,7 +44,7 @@ namespace Messaging.Serializer
             {
                 return byteArray;
             }
-            
+
             var offset = 0;
             foreach (var v in value)
             {

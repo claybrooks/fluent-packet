@@ -1,10 +1,9 @@
-﻿using System;
+﻿using FluentPacket.Interfaces;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.IO;
-using Messaging.Interfaces;
-using Newtonsoft.Json;
 
-namespace Messaging.Builder
+namespace FluentPacket.Builder
 {
     public class JsonConfigEntry : IConfig
     {

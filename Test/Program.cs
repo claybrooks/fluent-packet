@@ -1,7 +1,6 @@
-﻿using System;
-using Messaging;
-using Messaging.Builder;
+﻿using FluentPacket;
 using SimplePacket.Components;
+using System;
 
 namespace Test
 {
@@ -29,7 +28,7 @@ namespace Test
 
         private static void TestSimpleMessageBuilder()
         {
-            SetSimplePacketDataAndPrint(new SimplePacket.Builder.Builder().Produce());
+            SetSimplePacketDataAndPrint(new SimplePacket.SimplePacketBuilder().Produce());
         }
 
         private static void TestSimpleMessageConfigBuilder()
@@ -65,7 +64,7 @@ namespace Test
             packet.ClearTagged();
         }
 
-        private static void PrintPacket(Packet packet)
+        private static void PrintPacket(FluentPacket.Packet packet)
         {
             packet.Serialize(out var bytes);
             Console.WriteLine($"[{string.Join(",", bytes)}]");

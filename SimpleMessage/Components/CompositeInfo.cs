@@ -1,8 +1,6 @@
-﻿using System;
-
-using Messaging.Types;
-using Messaging.Interfaces;
-using Messaging.Serializer;
+﻿using FluentPacket.Interfaces;
+using FluentPacket.Serializer;
+using System;
 
 namespace SimplePacket.Components
 {
@@ -10,7 +8,7 @@ namespace SimplePacket.Components
     {
         public int CompositeId;
         public SiteInfo SiteInfo;
-        public VendorInfo VendorInfo = new VendorInfo();
+        public VendorInfo VendorInfo = new();
     }
 
     public class CompositeInfoSerializer : Serializer<CompositeInfo>
@@ -18,22 +16,24 @@ namespace SimplePacket.Components
         private readonly Lazy<ISerializer<SiteInfo>> _siteInfoSerializer;
         private readonly Lazy<ISerializer<VendorInfo>> _vendorInfoSerializer;
 
-        public CompositeInfoSerializer()
+        public CompositeInfoSerializer(int arg)
         {
             _siteInfoSerializer = new Lazy<ISerializer<SiteInfo>>(() => _factory.Get<SiteInfo>());
             _vendorInfoSerializer = new Lazy<ISerializer<VendorInfo>>(() => _factory.Get<VendorInfo>());
         }
 
-        public override bool Deserialize(ref CompositeInfo value, byte[] data, int offset)
+        public override bool Deserialize(out CompositeInfo value, byte[] data, int offset)
         {
             if (data.Length - offset < Length())
             {
-                return false;
+                throw new ArgumentOutOfRangeException(nameof(offset));
             }
 
+            value = new CompositeInfo();
+
             value.CompositeId = BitConverter.ToInt32(data, offset);
-            _siteInfoSerializer.Value.Deserialize(ref value.SiteInfo, data, offset + 4);
-            _vendorInfoSerializer.Value.Deserialize(ref value.VendorInfo, data, offset + 4 + _siteInfoSerializer.Value.Length());
+            _siteInfoSerializer.Value.Deserialize(out value.SiteInfo, data, offset + 4);
+            _vendorInfoSerializer.Value.Deserialize(out value.VendorInfo, data, offset + 4 + _siteInfoSerializer.Value.Length());
 
             return true;
         }
@@ -57,21 +57,4 @@ namespace SimplePacket.Components
             return 4 + _siteInfoSerializer.Value.Length() + _vendorInfoSerializer.Value.Length();
         }
     }
-
-    /*
-    public class CompositeInfoReferenceType : ReferenceType<CompositeInfo>
-    {
-        public CompositeInfoReferenceType(CompositeInfo info) : base(info, new CompositeInfoSerializer())
-        {
-
-        }
-
-        public override void Clear()
-        {
-            Value.CompositeId = 0;
-            Value.SiteInfo = new SiteInfo();
-            Value.VendorInfo = new VendorInfo();
-        }
-    }
-    */
 }

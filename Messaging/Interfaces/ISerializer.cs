@@ -1,6 +1,6 @@
-﻿using Messaging.Factory;
+﻿using FluentPacket.Factory;
 
-namespace Messaging.Interfaces
+namespace FluentPacket.Interfaces
 {
     public interface ISerializer
     {
@@ -15,6 +15,6 @@ namespace Messaging.Interfaces
 
         int Serialize(T value, byte[] data, int offset);
 
-        bool Deserialize(ref T value, byte[] data, int offset);
+        bool Deserialize(out T value, byte[] data, int offset);
     }
 }

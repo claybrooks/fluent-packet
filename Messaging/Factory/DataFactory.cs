@@ -1,10 +1,10 @@
-﻿using System;
+﻿using FluentPacket.Exception;
+using FluentPacket.Interfaces;
+using FluentPacket.Types;
+using System;
 using System.Collections.Generic;
-using Messaging.Exception;
-using Messaging.Types;
-using Messaging.Interfaces;
 
-namespace Messaging.Factory
+namespace FluentPacket.Factory
 {
     public class DataFactory
     {

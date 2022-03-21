@@ -1,7 +1,5 @@
-﻿using System;
-
-using Messaging.Types;
-using Messaging.Serializer;
+﻿using FluentPacket.Serializer;
+using System;
 
 namespace SimplePacket.Components
 {
@@ -23,8 +21,10 @@ namespace SimplePacket.Components
 
     public class VendorInfoSerializer : Serializer<VendorInfo>
     {
-        public override bool Deserialize(ref VendorInfo value, byte[] data, int offset)
+        public override bool Deserialize(out VendorInfo value, byte[] data, int offset)
         {
+            value = new VendorInfo();
+
             if (data[offset + 4] != (byte)',')
             {
                 return false;

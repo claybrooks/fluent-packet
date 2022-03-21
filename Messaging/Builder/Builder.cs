@@ -1,38 +1,38 @@
-﻿using Messaging.Interfaces;
+﻿using FluentPacket.Interfaces;
 
-namespace Messaging.Builder
+namespace FluentPacket
 {
-    public class Builder<TP>
-        where TP : Packet, new()
+    public class Builder<T>
+        where T : Packet, new()
     {
-        protected TP _packet;
+        protected T _packet;
 
         public Builder()
         {
-            _packet = new TP();
+            _packet = new T();
         }
 
-        public TP Produce()
+        public T Produce()
         {
-            _packet = new TP();
+            _packet = new T();
             Assemble();
             return Build();
         }
 
-        public TP Build()
+        public T Build()
         {
             return _packet;
         }
 
         public virtual void Assemble() {}
 
-        public Builder<TP> WithData<T>(T value, ISerializer<T>? serializer = null)
+        public Builder<T> WithData<U>(U value, ISerializer<U>? serializer = null)
         {
             _packet.AddData(value, serializer);
             return this;
         }
 
-        public Builder<TP> WithData<T>(T value, int tag, ISerializer<T>? serializer = null)
+        public Builder<T> WithData<U>(U value, int tag, ISerializer<U>? serializer = null)
         {
             _packet.AddData(value, tag, serializer);
             return this;

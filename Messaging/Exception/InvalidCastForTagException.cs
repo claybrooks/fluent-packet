@@ -1,8 +1,6 @@
-﻿
+﻿using System;
 
-using System;
-
-namespace Messaging.Exception
+namespace FluentPacket.Exception
 {
     class InvalidCastForTagException<T> : System.Exception
     {
@@ -19,10 +17,10 @@ namespace Messaging.Exception
 
         public static string GetMessage(int tag, Type? type = null)
         {
-            var msg = $"Unable to cast {nameof(Data<T>)} for tag {tag}";
+            var msg = $"Unable to cast {nameof(Data<T>)} for tag {tag}.";
             if (type != null)
             {
-                msg += $".  Generic registered is {type.Name}";
+                msg += $"  Generic registered is {type.Name}.";
             }
 
             return msg;
