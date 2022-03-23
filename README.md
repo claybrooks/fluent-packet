@@ -7,7 +7,6 @@ Getting Started
 /**
  * Uses the default packet builder to easily build a data packet.
  */
-using FluentPacket.Builder;
 
 DefaultPacket message = new DefaultPacketBuilder()
     .WithData<byte>(9)
@@ -99,7 +98,6 @@ Console.WriteLine(string.Join(",",bytes));
 #
 ```csharp
 // FluentPacket supports automatic serialization of value types
-using FluentPacket.Builder;
 
 struct MyValueType
 {
@@ -124,7 +122,6 @@ Console.WriteLine(string.Join(",",bytes));
 #
 ```csharp
 // FluentPacket supports custom serializers
-using FluentPacket.Builder;
 
 struct MyValueType
 {
@@ -209,6 +206,7 @@ public class SimplePacket : FluentPacket.DefaultPacket
 ```csharp
 // If there is a reference type embedded within another type, a custom serializer
 // must be created
+
 class ReferenceTypeA
 {
     int x;
@@ -242,8 +240,9 @@ public class ReferenceTypeASerializer : Serializer<ReferenceTypeA>
     }
 }
 
-// If reference type A has a custom serializer, you can get access to it lazily
-// It must be done lazily, ordering of serializer registering is not guaranteed
+// If ReferenceTypeA has a custom serializer, you can get access to it lazily
+// It must be done lazily, ordering of serializer registration is not guaranteed.  All registration
+// is guaranteed to be complete after construction and prior to the first (de)serialize call
 public class ReferenceTypeBSerializer : Serializer<ReferenceTypeB>
 {
     private readonly Lazy<ISerializer<ReferenceTypeA>> _referenceTypeASerializer;
