@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.32228.430
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentPacket", "Messaging\FluentPacket.csproj", "{6841FE28-7698-4BD7-AE67-9F4E181AFE96}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentPacket", "FluentPacket\FluentPacket.csproj", "{6841FE28-7698-4BD7-AE67-9F4E181AFE96}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test", "Test\Test.csproj", "{409722BB-72B2-40F3-A62E-610B010CC608}"
 EndProject
