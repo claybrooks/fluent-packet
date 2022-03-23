@@ -15,7 +15,15 @@
     <Copyright>This is free and unencumbered software released into the public domain.</Copyright>
     <PackageLicenseExpression>Unlicense</PackageLicenseExpression>
     <PackageReleaseNotes>Initial Release</PackageReleaseNotes>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
